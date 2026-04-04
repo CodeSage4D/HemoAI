@@ -23,7 +23,13 @@ class MultiModelHybridEngine:
         
         # Model 1: General Context Analyzer (Simulated BioBERT/Clinical Transformer for Speed)
         # Using zero-shot allows us to map medical definitions without a massive finetuned 2GB memory footprint
-        self.diagnostic_nlp = pipeline("zero-shot-classification", model="typeform/distilbert-base-uncased-mnli")
+        import os
+        model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "local_models", "distilbert"))
+        
+        # Fallback to online string if script wasn't explicitly run by admin, ensuring system doesn't crash on uninitialized CI
+        target_model = model_path if os.path.exists(model_path) else "typeform/distilbert-base-uncased-mnli"
+        
+        self.diagnostic_nlp = pipeline("zero-shot-classification", model=target_model)
         
         # Model 2: Disease Categorization Extractor (NER Entity extraction logic)
         self.ner_pipeline = pipeline("ner", aggregation_strategy="simple", model="dbmdz/bert-large-cased-finetuned-conll03-english")

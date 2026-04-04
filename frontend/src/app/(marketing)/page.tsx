@@ -72,14 +72,18 @@ export default function LandingPage() {
               Upload patient blood diagnostics securely. Our hybrid PyTorch Transformer pipeline extracts contexts and calculates triage priority in real-time.
             </p>
 
-            {/* Drag & Drop Main Block */}
-            <div className="w-full max-w-3xl bg-card border border-border shadow-2xl rounded-3xl p-2 flex flex-col">
+            {/* Interactive Drag & Drop Main Block */}
+            <motion.div initial={{y: 30, opacity: 0}} animate={{y: 0, opacity: 1}} transition={{duration: 0.5, ease: "easeOut"}} className="relative w-full max-w-3xl">
+               {/* Animated Glowing Gradient Ring underneath the box */}
+               <div className="absolute -inset-1.5 bg-gradient-to-r from-emerald-500 via-primary to-blue-500 rounded-3xl blur opacity-25 group-hover:opacity-60 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
+               
+               <div className="w-full bg-card/80 backdrop-blur-xl border border-white/10 shadow-2xl rounded-3xl p-3 flex flex-col relative z-10 group transition-all duration-300 hover:shadow-primary/20">
                 {!result && analyzeStep === 0 && (
-                    <label className="w-full h-64 border-2 border-dashed border-border/50 hover:border-primary bg-muted/50 hover:bg-primary/5 transition-all rounded-2xl flex flex-col items-center justify-center cursor-pointer p-6">
-                       <UploadCloud className="w-12 h-12 text-primary mb-4" />
-                       <div className="font-bold text-xl mb-2">Drop Medical Report to Analyze</div>
-                       <div className="text-sm text-muted-foreground mb-4">Accepts dense PDF graphics and standard JPG telemetry bounds.</div>
-                       <div className="px-6 py-2 bg-primary text-primary-foreground font-bold rounded-lg shadow-sm">Secure Upload</div>
+                    <label className="w-full h-64 border-2 border-dashed border-primary/50 hover:border-primary bg-background/50 hover:bg-primary/10 transition-all duration-300 rounded-2xl flex flex-col items-center justify-center cursor-pointer p-6 relative overflow-hidden">
+                       <UploadCloud className="w-14 h-14 text-primary mb-4 drop-shadow-md group-hover:scale-110 transition-transform duration-300" />
+                       <div className="font-extrabold text-2xl mb-2 text-transparent bg-clip-text bg-gradient-to-r from-foreground to-foreground/70">Secure Medical Dropzone</div>
+                       <div className="text-sm text-muted-foreground mb-6 font-medium">Auto-Ingests Dense PDF/JPG Formats via Offline AI Abstraction.</div>
+                       <div className="px-8 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground font-black tracking-wide rounded-xl shadow-lg transition-colors">Select Local File</div>
                        <input type="file" className="hidden" accept=".pdf,image/*" onChange={handleDrop} />
                     </label>
                 )}
@@ -144,6 +148,7 @@ export default function LandingPage() {
                     </div>
                 )}
             </div>
+          </motion.div>
 
             {/* Assistant Chatbot Accordion */}
             <AnimatePresence>
