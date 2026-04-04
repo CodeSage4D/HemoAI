@@ -70,41 +70,47 @@ def read_users_me(current_user: models.User = Depends(get_current_user)):
 
 # ===== MEDICAL AI INTELLIGENCE PIPELINE =====
 
-@app.post("/ai/analyze-report")
-def analyze_medical_report(file: UploadFile = File(...), db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    """
-    Ingests PDF/Image -> Runs OCR & NLP -> Extracts core metrics.
-    """
-    import tempfile
-    import os
-    import shutil
-    
-    # Save Uploaded file safely
+@app.post("/ai/ocr-service")
+async def ocr_service(file: UploadFile = File(...)):
+    import tempfile, os, shutil
     with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp:
         shutil.copyfileobj(file.file, tmp)
         tmp_path = tmp.name
 
-    extracted_data = ai_engine.extract_medical_ocr(tmp_path)
+    # Asynchronous offloading for performance blocking prevention
+    from fastapi.concurrency import run_in_threadpool
+    extracted = await run_in_threadpool(ai_engine.ocr_extraction_service, tmp_path)
     os.remove(tmp_path)
+    return extracted
+
+class MLOpsRequest(schemas.BaseModel):
+    raw_text: str
+    hb_val: float
+
+@app.post("/ai/final-engine")
+async def final_mlops_engine(payload: MLOpsRequest):
+    # Initializes the Global Singleton Engine dynamically
+    engine = ai_engine.get_engine()
     
-    return {
-        "status": "success",
-        "ocr_metrics": extracted_data
-    }
+    from fastapi.concurrency import run_in_threadpool
+    result_matrix = await run_in_threadpool(engine.run_ensemble, payload.raw_text, payload.hb_val)
+    return result_matrix
 
 @app.post("/requests", response_model=schemas.BloodRequestResponse)
-def compute_patient_triage(req: schemas.BloodRequestCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+async def submit_live_triage(req: schemas.BloodRequestCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     """
-    Core AI Routing Pipeline: Combines NLP extraction variables and hits the Hybrid Risk Model
-    to assign Priority Channels.
+    Core AI Routing Pipeline handling organic UI requests leveraging the ensemble output.
     """
-    urgency_channel, priority_score = ai_engine.hybrid_priority_channel(req.hemoglobin_level, req.disease_type)
+    engine = ai_engine.get_engine()
+    from fastapi.concurrency import run_in_threadpool
+    # Re-running the math model
+    result_matrix = await run_in_threadpool(engine.run_ensemble, req.disease_type, req.hemoglobin_level)
     
     db_req = models.BloodRequest(
         patient_id=req.patient_id,
         units_required=req.units_required,
-        urgency_channel=urgency_channel,
-        priority_score=priority_score,
+        urgency_channel=result_matrix["channel"],
+        priority_score=result_matrix["risk_score"],
         status="PENDING"
     )
     db.add(db_req)

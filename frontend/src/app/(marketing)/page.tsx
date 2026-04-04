@@ -1,153 +1,211 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ArrowRight, ActivitySquare, ShieldCheck, Zap, Droplet } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, ActivitySquare, ShieldCheck, Zap, UploadCloud, FileText, Bot, AlertTriangle, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function LandingPage() {
+  const [file, setFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<any>(null);
+  const [chatOpen, setChatOpen] = useState(false);
+  
+  const handleDrop = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files[0]) {
+          const f = e.target.files[0];
+          setFile(f);
+          setLoading(true);
+          setResult(null);
+          setChatOpen(false);
+          
+          try {
+             // 1. Hit OCR Service
+             const ocrForm = new FormData();
+             ocrForm.append("file", f);
+             const ocrRes = await fetch("http://localhost:8000/ai/ocr-service", {
+                 method: "POST",
+                 body: ocrForm
+             }).then(r => r.json());
+             
+             // 2. Hit Ensemble Transformer Engine
+             const mlRes = await fetch("http://localhost:8000/ai/final-engine", {
+                 method: "POST",
+                 headers: {
+                     "Content-Type": "application/json"
+                 },
+                 body: JSON.stringify({
+                     raw_text: ocrRes.raw_text,
+                     hb_val: ocrRes.hb_val
+                 })
+             }).then(r => r.json());
+             
+             setResult(mlRes);
+          } catch(err) {
+             console.error("Pipeline failure:", err);
+             setResult({
+                 disease: "System Error. Manual Override Required.",
+                 risk_score: 99.9,
+                 confidence: 0.0,
+                 channel: "RED",
+                 reason: "Network failure isolating the PyTorch microservice container."
+             });
+          } finally {
+             setLoading(false);
+          }
+      }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden px-6">
+      {/* Hero Section: Live AI Analyzer */}
+      <section className="relative pt-32 pb-20 md:pt-40 md:pb-24 overflow-hidden px-6">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent dark:from-primary/10" />
         
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center relative z-10">
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-sm font-semibold mb-6 border border-emerald-500/20">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              Hemo-Sync Intelligence Core v2.0
-            </div>
-            
-            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-[1.1]">
-              Predictive Blood <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-400">Logistics AI.</span>
+        <div className="max-w-7xl mx-auto flex flex-col items-center text-center relative z-10">
+            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-[1.1]">
+              Instant Clinical <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-400">Triage.</span>
             </h1>
-            
-            <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-lg leading-relaxed">
-              Eliminate emergency shortages and preemptively route critical blood supply to top-priority trauma patients using Scikit-Learn powered analytics.
+            <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl leading-relaxed">
+              Upload patient blood diagnostics securely. Our hybrid PyTorch Transformer pipeline extracts contexts and calculates triage priority in real-time.
             </p>
 
-            <div className="flex flex-wrap items-center gap-4">
-              <Link href="/signup" className="px-8 py-4 bg-foreground text-background font-bold rounded-full hover:scale-105 transition-transform flex items-center gap-2 shadow-xl">
-                Deploy Infrastructure <ArrowRight className="w-5 h-5" />
-              </Link>
-              <Link href="/services" className="px-8 py-4 bg-card border border-border text-foreground font-bold rounded-full hover:bg-muted transition-colors">
-                View Architecture
-              </Link>
+            {/* Drag & Drop Main Block */}
+            <div className="w-full max-w-3xl bg-card border border-border shadow-2xl rounded-3xl p-2 flex flex-col">
+                {!result && !loading && (
+                    <label className="w-full h-64 border-2 border-dashed border-border/50 hover:border-primary bg-muted/50 hover:bg-primary/5 transition-all rounded-2xl flex flex-col items-center justify-center cursor-pointer p-6">
+                       <UploadCloud className="w-12 h-12 text-primary mb-4" />
+                       <div className="font-bold text-xl mb-2">Drop Medical Report to Analyze</div>
+                       <div className="text-sm text-muted-foreground mb-4">Accepts dense PDF graphics and standard JPG telemetry bounds.</div>
+                       <div className="px-6 py-2 bg-primary text-primary-foreground font-bold rounded-lg shadow-sm">Secure Upload</div>
+                       <input type="file" className="hidden" accept=".pdf,image/*" onChange={handleDrop} />
+                    </label>
+                )}
+
+                {(loading || result) && (
+                    <div className="w-full bg-card rounded-2xl p-6 relative overflow-hidden transition-all text-left flex flex-col md:flex-row gap-6">
+                        {/* File Left Side */}
+                        <div className="shrink-0 w-full md:w-1/3 flex flex-col items-center justify-center p-6 border border-border rounded-xl bg-muted/30">
+                            <FileText className={`w-16 h-16 mb-4 ${loading ? 'text-muted-foreground animate-pulse' : 'text-primary'}`} />
+                            <div className="font-bold text-center truncate w-full px-2">{file?.name || "Report.pdf"}</div>
+                            <div className="text-xs text-muted-foreground mt-1">{(file?.size ? file.size / 1024 / 1024 : 0).toFixed(2)} MB</div>
+                            {result && (
+                                <button onClick={() => {setResult(null); setFile(null); setChatOpen(false);}} className="text-xs font-bold text-primary mt-6 hover:underline">Process New File</button>
+                            )}
+                        </div>
+
+                        {/* ML Output Right Side */}
+                        <div className="flex-1 flex flex-col justify-center">
+                            {loading ? (
+                                <div className="space-y-4">
+                                   <div className="font-bold flex items-center gap-2 mb-2"><ActivitySquare className="w-5 h-5 text-primary animate-spin" /> MLOps Pipeline Executing</div>
+                                   <div className="w-full h-8 bg-muted rounded animate-pulse" />
+                                   <div className="w-3/4 h-8 bg-muted rounded animate-pulse" />
+                                   <div className="w-1/2 h-8 bg-muted rounded animate-pulse" />
+                                </div>
+                            ) : (
+                                <motion.div initial={{opacity:0, x:20}} animate={{opacity:1, x:0}}>
+                                   <div className="flex items-center justify-between mb-4 pb-4 border-b border-border">
+                                       <div className={`px-3 py-1 rounded-full text-xs font-bold ${
+                                          result.channel === 'RED' ? 'bg-destructive/10 text-destructive' : 
+                                          result.channel === 'GREEN' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-yellow-500/10 text-yellow-600'
+                                       }`}>
+                                           PRIORITY: {result.channel} CHANNEL
+                                       </div>
+                                       <div className="text-xs font-bold text-muted-foreground">NLP CONFIDENCE: <span className="text-foreground">{(result.confidence * 100).toFixed(1)}%</span></div>
+                                   </div>
+
+                                   <div className="grid grid-cols-2 gap-4 mb-4">
+                                      <div>
+                                         <div className="text-xs font-bold text-muted-foreground uppercase mb-1">Detected Pathology</div>
+                                         <div className="font-black text-lg">{result.disease}</div>
+                                      </div>
+                                      <div>
+                                         <div className="text-xs font-bold text-muted-foreground uppercase mb-1">XGBoost Risk Index</div>
+                                         <div className={`font-black text-3xl ${result.channel === 'RED' ? 'text-destructive' : ''}`}>{result.risk_score}</div>
+                                      </div>
+                                   </div>
+
+                                   <div className="p-4 rounded-xl bg-muted/50 border border-border text-sm font-medium leading-relaxed">
+                                       <span className="font-bold text-primary block mb-1">Clinical Reason:</span> 
+                                       {result.reason}
+                                   </div>
+                                   
+                                   <button onClick={() => setChatOpen(!chatOpen)} className="mt-4 w-full py-3 bg-foreground text-background font-bold rounded-lg hover:opacity-90 flex items-center justify-center gap-2">
+                                       <Bot className="w-5 h-5"/> Explain via AI Assistant
+                                   </button>
+                                </motion.div>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
-          </motion.div>
 
-          {/* Animated Illustration / Mock UI */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="relative h-[500px]"
-          >
-             <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-emerald-500/30 blur-3xl opacity-50 rounded-full" />
-             <div className="w-full h-full bg-card/80 backdrop-blur-xl border border-border/50 shadow-2xl rounded-3xl p-6 relative overflow-hidden flex flex-col">
-                <div className="flex items-center justify-between border-b border-border/50 pb-4 mb-4">
-                   <div className="font-bold flex items-center gap-2"><ActivitySquare className="w-5 h-5 text-primary"/> AI Triage Feed</div>
-                   <div className="flex gap-2">
-                      <div className="w-3 h-3 rounded-full bg-destructive" />
-                      <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                      <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                   </div>
-                </div>
+            {/* Assistant Chatbot Accordion */}
+            <AnimatePresence>
+                {chatOpen && result && (
+                    <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} exit={{opacity:0, height:0}} className="w-full max-w-3xl mt-6 bg-card border border-border shadow-xl rounded-2xl overflow-hidden text-left">
+                        <div className="bg-muted p-4 font-bold flex items-center gap-2 border-b border-border">
+                           <Bot className="w-5 h-5 text-primary" /> Specialist AI Clinical Assistant
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div className="flex gap-4">
+                                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0"><Bot className="w-4 h-4 text-primary"/></div>
+                                <div className="bg-muted px-4 py-3 rounded-2xl rounded-tl-sm text-sm">
+                                   I am your MLOps Clinical Assistant. Based on the `{result.channel}` channel assignment for `{result.disease}`, {result.channel === 'RED' ? "this is a massive emergency requiring 0-hour blood dispatch immediately from the primary local center." : result.channel === 'GREEN' ? "this is a chronic requirement that has bypassed standard queues for specialized tracking." : "this patient is currently stable but should be monitored for sudden Hb fluctuations."} How else can I assist in interpreting the data?
+                                </div>
+                            </div>
+                            <div className="flex gap-4 flex-row-reverse">
+                                <div className="bg-primary text-primary-foreground px-4 py-3 rounded-2xl rounded-tr-sm text-sm">
+                                   What should I do?
+                                </div>
+                            </div>
+                            <div className="flex gap-4">
+                                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0"><Bot className="w-4 h-4 text-primary"/></div>
+                                <div className="bg-muted px-4 py-3 rounded-2xl rounded-tl-sm text-sm">
+                                   Please ensure the patient has physically arrived at the hospital ward, then proceed to the Secure Login portal to verify this action inside the Triage Routing API.
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
-                <div className="space-y-4 flex-1">
-                   <mock-line className="block w-3/4 h-8 bg-muted rounded-md animate-pulse" />
-                   <mock-line className="block w-full h-16 bg-destructive/10 border border-destructive/20 rounded-md animate-pulse delay-75" />
-                   <mock-line className="block w-1/2 h-8 bg-muted rounded-md animate-pulse delay-150" />
-                   
-                   <div className="mt-8 p-4 bg-muted/50 rounded-xl">
-                      <div className="text-xs text-muted-foreground font-bold mb-2 uppercase tracking-wide">Live Inventory Link</div>
-                      <div className="flex items-center justify-between">
-                         <div className="flex items-center gap-2 font-bold text-lg"><Droplet className="w-5 h-5 text-destructive" /> O- Negative</div>
-                         <div className="text-destructive font-black text-xl">12%</div>
-                      </div>
-                      <div className="w-full h-2 bg-muted rounded-full mt-3 overflow-hidden">
-                         <div className="w-[12%] h-full bg-destructive" />
-                      </div>
-                   </div>
-                </div>
-             </div>
-          </motion.div>
         </div>
-      </section>
-
-      {/* Quick Stats Banner */}
-      <section className="bg-muted py-12 border-y border-border">
-         <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-border/50">
-            <StatBlock num="400+" label="Hospitals Connected" />
-            <StatBlock num="98.2%" label="Prediction Accuracy" />
-            <StatBlock num="2.5M" label="Liters Routed" />
-            <StatBlock num="0" label="Fatal Shortouts" />
-         </div>
       </section>
 
       {/* Feature Grids */}
-      <section className="py-32 px-6">
+      <section className="py-20 px-6 bg-muted/30 border-t border-border">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-             <h2 className="text-3xl md:text-5xl font-bold mb-6">Designed for Critical Moments.</h2>
-             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-               We replace archaic spreadsheets and manual phone calls with absolute software precision.
-             </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-8 text-center md:text-left">
              <FeatureCard 
                icon={<Zap className="w-6 h-6 text-yellow-500" />} 
-               title="Immediate Allocation" 
-               desc="Algorithms calculate physical distress trajectories to ensure blood is waiting before the patient arrives." 
+               title="Transformer NLP" 
+               desc="Leverages HuggingFace PyTorch DistilBERT models to contextually group medical definitions instantaneously." 
              />
              <FeatureCard 
                icon={<ShieldCheck className="w-6 h-6 text-primary" />} 
-               title="Secure & Compliant" 
-               desc="Full SOC2 and HIPAA compliant pipelines ensuring patient metadata is never compromised." 
+               title="XGBoost Math Arrays" 
+               desc="Binds classification structures natively against deep non-linear regression engines for Risk Index formulation." 
              />
              <FeatureCard 
-               icon={<ActivitySquare className="w-6 h-6 text-emerald-500" />} 
-               title="ML Demand Sync" 
-               desc="Automated synchronization with community blood donation registries to scale supply proactively." 
+               icon={<CheckCircle2 className="w-6 h-6 text-emerald-500" />} 
+               title="Explicit Rule Engine" 
+               desc="Overrides Machine Learning failures by forcing critical Hemoglobin drops strictly into Red Channel protocols." 
              />
           </div>
         </div>
       </section>
-
     </div>
   );
 }
 
-function StatBlock({ num, label }: any) {
-  return (
-    <motion.div initial={{opacity:0, scale:0.9}} whileInView={{opacity:1, scale:1}} viewport={{once:true}} className="text-center px-4">
-       <div className="text-3xl md:text-5xl font-black mb-2 text-foreground">{num}</div>
-       <div className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{label}</div>
-    </motion.div>
-  )
-}
-
 function FeatureCard({ icon, title, desc }: any) {
   return (
-    <motion.div 
-      initial={{opacity:0, y:30}} 
-      whileInView={{opacity:1, y:0}} 
-      viewport={{once:true}} 
-      whileHover={{y:-10}}
-      className="p-8 rounded-3xl bg-card border border-border shadow-sm hover:shadow-xl transition-all"
-    >
-       <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mb-6 shadow-inner">{icon}</div>
+    <div className="p-8 rounded-3xl bg-card border border-border shadow-sm hover:shadow-xl transition-all">
+       <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mb-6 shadow-inner mx-auto md:mx-0">{icon}</div>
        <h3 className="text-xl font-bold mb-4">{title}</h3>
-       <p className="text-muted-foreground leading-relaxed">{desc}</p>
-    </motion.div>
+       <p className="text-muted-foreground leading-relaxed text-sm">{desc}</p>
+    </div>
   )
 }
