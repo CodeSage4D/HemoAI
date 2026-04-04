@@ -1,0 +1,20 @@
+# Handle line endings automatically
+* text=auto eol=lf
+
+# Explicitly declare text files
+*.js text eol=lf
+*.jsx text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.py text eol=lf
+
+# Explictly declare binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
