@@ -1,21 +1,19 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from typing import Optional, List
-import datetime
-from .models import RoleEnum, BloodGroupEnum, RequestStatus
+from datetime import datetime
+from .models import RoleEnum, BloodGroupEnum, UrgencyChannel, RequestStatus
 
 class UserCreate(BaseModel):
-    email: EmailStr
+    email: str
     password: str
     full_name: str
-    role: RoleEnum = RoleEnum.DONOR
+    role: Optional[RoleEnum] = RoleEnum.DONOR
 
 class UserResponse(BaseModel):
     id: int
-    email: EmailStr
+    email: str
     full_name: str
     role: RoleEnum
-    is_active: bool
-
     class Config:
         orm_mode = True
 
@@ -23,62 +21,25 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
-class TokenData(BaseModel):
-    email: Optional[str] = None
-    role: Optional[str] = None
+class MedicalReportCreate(BaseModel):
+    patient_id: int
+    extracted_hb: Optional[float]
+    extracted_platelets: Optional[int]
+    identified_disease: Optional[str]
 
-class DonorCreate(BaseModel):
-    blood_group: BloodGroupEnum
-    age: int
-    weight: float
-
-class DonorResponse(BaseModel):
+class BloodRequestResponse(BaseModel):
     id: int
-    user_id: int
-    blood_group: BloodGroupEnum
-    age: int
-    weight: float
-    is_available: bool
-    user: UserResponse
-
-    class Config:
-        orm_mode = True
-
-class InventoryCreate(BaseModel):
-    blood_group: BloodGroupEnum
-    units: int
-    expiry_date: datetime.datetime
-
-class InventoryResponse(BaseModel):
-    id: int
-    blood_group: BloodGroupEnum
-    units: int
-    collection_date: datetime.datetime
-    expiry_date: datetime.datetime
-    is_expired: bool
-
+    patient_id: int
+    units_required: int
+    urgency_channel: UrgencyChannel
+    priority_score: float
+    status: RequestStatus
+    
     class Config:
         orm_mode = True
 
 class BloodRequestCreate(BaseModel):
-    patient_name: str
-    blood_group: BloodGroupEnum
+    patient_id: int
     units_required: int
     hemoglobin_level: float
     disease_type: str
-
-class BloodRequestResponse(BaseModel):
-    id: int
-    patient_name: str
-    blood_group: BloodGroupEnum
-    units_required: int
-    hemoglobin_level: float
-    disease_type: str
-    priority_score: Optional[float]
-    urgency_classification: Optional[str]
-    status: RequestStatus
-    requested_by: int
-    created_at: datetime.datetime
-
-    class Config:
-        orm_mode = True

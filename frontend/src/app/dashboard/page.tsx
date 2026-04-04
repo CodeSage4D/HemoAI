@@ -97,9 +97,9 @@ export default function DashboardPage() {
                     patient={`PT-ID-${req.requested_by}`} 
                     diagnosis={req.disease_type} 
                     hl={req.priority_score.toFixed(1)} 
-                    bg={req.urgency_classification === "CRITICAL" ? "bg-destructive/10" : "bg-emerald-500/10"} 
-                    text={req.urgency_classification === "CRITICAL" ? "text-destructive" : "text-emerald-500"} 
-                    bd={req.urgency_classification === "CRITICAL" ? "border-destructive/20" : "border-emerald-500/20"} 
+                    bg={req.urgency_channel === "RED" ? "bg-destructive/10" : req.urgency_channel === "GREEN" ? "bg-emerald-500/10" : "bg-yellow-500/10"} 
+                    text={req.urgency_channel === "RED" ? "text-destructive" : req.urgency_channel === "GREEN" ? "text-emerald-500" : "text-yellow-500"} 
+                    bd={req.urgency_channel === "RED" ? "border-destructive/20" : req.urgency_channel === "GREEN" ? "border-emerald-500/20" : "border-yellow-500/20"} 
                   />
                ))
              )}

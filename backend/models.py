@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey, DateTime, Enum
+from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey, DateTime, Enum, Text
 from sqlalchemy.orm import relationship
 import enum
 import datetime
@@ -8,6 +8,7 @@ class RoleEnum(str, enum.Enum):
     ADMIN = "ADMIN"
     STAFF = "STAFF"
     DONOR = "DONOR"
+    HOSPITAL = "HOSPITAL"
 
 class BloodGroupEnum(str, enum.Enum):
     A_POS = "A+"
@@ -19,15 +20,19 @@ class BloodGroupEnum(str, enum.Enum):
     AB_POS = "AB+"
     AB_NEG = "AB-"
 
+class UrgencyChannel(str, enum.Enum):
+    GREEN = "GREEN"    # Special Priority (Chronic)
+    YELLOW = "YELLOW"  # Medium Priority (Routine)
+    RED = "RED"        # Emergency Priority (Severe)
+
 class RequestStatus(str, enum.Enum):
     PENDING = "PENDING"
     APPROVED = "APPROVED"
+    DISPATCHED = "DISPATCHED"
     FULFILLED = "FULFILLED"
-    REJECTED = "REJECTED"
 
 class User(Base):
     __tablename__ = "users"
-    
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
@@ -36,42 +41,65 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
-class Donor(Base):
-    __tablename__ = "donors"
-    
+class Hospital(Base):
+    __tablename__ = "hospitals"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    blood_group = Column(Enum(BloodGroupEnum))
-    age = Column(Integer)
-    weight = Column(Float)
-    last_donation = Column(DateTime, nullable=True)
-    is_available = Column(Boolean, default=True)
+    user_id = Column(Integer, ForeignKey("users.id")) # Link to admin login
+    name = Column(String)
+    license_no = Column(String, unique=True)
+    location_lat = Column(Float)
+    location_lng = Column(Float)
     
-    user = relationship("User")
+    patients = relationship("Patient", back_populates="hospital")
+
+class BloodBank(Base):
+    __tablename__ = "blood_banks"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+    location_lat = Column(Float)
+    location_lng = Column(Float)
+    
+    inventory = relationship("Inventory", back_populates="blood_bank")
+
+class Patient(Base):
+    __tablename__ = "patients"
+    id = Column(Integer, primary_key=True, index=True)
+    hospital_id = Column(Integer, ForeignKey("hospitals.id"))
+    name = Column(String)
+    blood_group = Column(Enum(BloodGroupEnum))
+    chronic_conditions = Column(String, nullable=True) # E.g. Thalassemia
+    
+    hospital = relationship("Hospital", back_populates="patients")
+    reports = relationship("MedicalReport", back_populates="patient")
+
+class MedicalReport(Base):
+    __tablename__ = "medical_reports"
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"))
+    record_date = Column(DateTime, default=datetime.datetime.utcnow)
+    ocr_raw_text = Column(Text, nullable=True)
+    extracted_hb = Column(Float, nullable=True)
+    extracted_platelets = Column(Integer, nullable=True)
+    identified_disease = Column(String, nullable=True)
+    
+    patient = relationship("Patient", back_populates="reports")
 
 class Inventory(Base):
     __tablename__ = "inventory"
-    
     id = Column(Integer, primary_key=True, index=True)
+    blood_bank_id = Column(Integer, ForeignKey("blood_banks.id"))
     blood_group = Column(Enum(BloodGroupEnum), index=True)
     units = Column(Integer, default=1)
-    collection_date = Column(DateTime, default=datetime.datetime.utcnow)
     expiry_date = Column(DateTime)
-    is_expired = Column(Boolean, default=False)
+    
+    blood_bank = relationship("BloodBank", back_populates="inventory")
 
 class BloodRequest(Base):
     __tablename__ = "blood_requests"
-    
     id = Column(Integer, primary_key=True, index=True)
-    patient_name = Column(String)
-    blood_group = Column(Enum(BloodGroupEnum))
+    patient_id = Column(Integer, ForeignKey("patients.id"))
     units_required = Column(Integer)
-    hemoglobin_level = Column(Float)
-    disease_type = Column(String)
-    priority_score = Column(Float, nullable=True) # AI updated
-    urgency_classification = Column(String, nullable=True) # AI Updated
+    urgency_channel = Column(Enum(UrgencyChannel)) # Core output of AI pipeline
+    priority_score = Column(Float) # Core output of AI pipeline (0-100)
     status = Column(Enum(RequestStatus), default=RequestStatus.PENDING)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
-    requested_by = Column(Integer, ForeignKey("users.id"))
-    
-    requester = relationship("User")

@@ -31,9 +31,11 @@ export default function DiagnosisPage() {
       
       setResult({
         score: res.priority_score.toFixed(1),
-        classification: res.urgency_classification,
-        recommendation: res.urgency_classification === "CRITICAL" 
+        classification: res.urgency_channel,
+        recommendation: res.urgency_channel === "RED" 
            ? "Immediate Transfusion Requested. Data logged to emergency dispatch." 
+           : res.urgency_channel === "GREEN" 
+           ? "Special Track Logged. Chronic condition prioritized." 
            : "Logged into queue. Status non-critical.",
       });
     } catch (err: any) {
@@ -104,12 +106,12 @@ export default function DiagnosisPage() {
 
               {result && !loading && (
                 <motion.div key="result" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center w-full">
-                  <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-bold mb-6 ${result.classification === 'CRITICAL' ? 'bg-destructive/10 text-destructive' : 'bg-emerald-500/10 text-emerald-500'}`}>
+                  <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-bold mb-6 ${result.classification === 'RED' ? 'bg-destructive/10 text-destructive' : result.classification === 'GREEN' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-yellow-500/10 text-yellow-500'}`}>
                     <AlertTriangle className="w-4 h-4" /> {result.classification}
                   </div>
                   <div className="text-6xl font-black mb-2 text-foreground">{result.score}</div>
                   <div className="text-muted-foreground font-medium mb-8">Generated Fast-API Priority</div>
-                  <div className={`p-4 rounded-xl border text-sm font-bold ${result.classification === 'CRITICAL' ? 'bg-destructive/5 border-destructive/20 text-destructive' : 'bg-emerald-500/5 border-emerald-500/20 text-emerald-500'}`}>
+                  <div className={`p-4 rounded-xl border text-sm font-bold ${result.classification === 'RED' ? 'bg-destructive/5 border-destructive/20 text-destructive' : result.classification === 'GREEN' ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-500' : 'bg-yellow-500/5 border-yellow-500/20 text-yellow-500'}`}>
                     {result.recommendation}
                   </div>
                 </motion.div>
