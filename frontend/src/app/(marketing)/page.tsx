@@ -7,7 +7,7 @@ import { useState } from "react";
 
 export default function LandingPage() {
   const [file, setFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [analyzeStep, setAnalyzeStep] = useState(0); // 0=idle, 1=OCR, 2=ML, 3=Done
   const [result, setResult] = useState<any>(null);
   const [chatOpen, setChatOpen] = useState(false);
   
@@ -15,7 +15,7 @@ export default function LandingPage() {
       if (e.target.files && e.target.files[0]) {
           const f = e.target.files[0];
           setFile(f);
-          setLoading(true);
+          setAnalyzeStep(1);
           setResult(null);
           setChatOpen(false);
           
@@ -28,6 +28,8 @@ export default function LandingPage() {
                  body: ocrForm
              }).then(r => r.json());
              
+             setAnalyzeStep(2);
+
              // 2. Hit Ensemble Transformer Engine
              const mlRes = await fetch("http://localhost:8000/ai/final-engine", {
                  method: "POST",
@@ -41,6 +43,7 @@ export default function LandingPage() {
              }).then(r => r.json());
              
              setResult(mlRes);
+             setAnalyzeStep(3);
           } catch(err) {
              console.error("Pipeline failure:", err);
              setResult({
@@ -50,8 +53,7 @@ export default function LandingPage() {
                  channel: "RED",
                  reason: "Network failure isolating the PyTorch microservice container."
              });
-          } finally {
-             setLoading(false);
+             setAnalyzeStep(3);
           }
       }
   };
@@ -72,7 +74,7 @@ export default function LandingPage() {
 
             {/* Drag & Drop Main Block */}
             <div className="w-full max-w-3xl bg-card border border-border shadow-2xl rounded-3xl p-2 flex flex-col">
-                {!result && !loading && (
+                {!result && analyzeStep === 0 && (
                     <label className="w-full h-64 border-2 border-dashed border-border/50 hover:border-primary bg-muted/50 hover:bg-primary/5 transition-all rounded-2xl flex flex-col items-center justify-center cursor-pointer p-6">
                        <UploadCloud className="w-12 h-12 text-primary mb-4" />
                        <div className="font-bold text-xl mb-2">Drop Medical Report to Analyze</div>
@@ -82,26 +84,28 @@ export default function LandingPage() {
                     </label>
                 )}
 
-                {(loading || result) && (
+                {(analyzeStep > 0 || result) && (
                     <div className="w-full bg-card rounded-2xl p-6 relative overflow-hidden transition-all text-left flex flex-col md:flex-row gap-6">
                         {/* File Left Side */}
                         <div className="shrink-0 w-full md:w-1/3 flex flex-col items-center justify-center p-6 border border-border rounded-xl bg-muted/30">
-                            <FileText className={`w-16 h-16 mb-4 ${loading ? 'text-muted-foreground animate-pulse' : 'text-primary'}`} />
+                            <FileText className={`w-16 h-16 mb-4 ${analyzeStep < 3 ? 'text-muted-foreground animate-pulse' : 'text-primary'}`} />
                             <div className="font-bold text-center truncate w-full px-2">{file?.name || "Report.pdf"}</div>
                             <div className="text-xs text-muted-foreground mt-1">{(file?.size ? file.size / 1024 / 1024 : 0).toFixed(2)} MB</div>
                             {result && (
-                                <button onClick={() => {setResult(null); setFile(null); setChatOpen(false);}} className="text-xs font-bold text-primary mt-6 hover:underline">Process New File</button>
+                                <button onClick={() => {setResult(null); setFile(null); setAnalyzeStep(0); setChatOpen(false);}} className="text-xs font-bold text-primary mt-6 hover:underline">Process New File</button>
                             )}
                         </div>
 
                         {/* ML Output Right Side */}
                         <div className="flex-1 flex flex-col justify-center">
-                            {loading ? (
+                            {analyzeStep < 3 ? (
                                 <div className="space-y-4">
-                                   <div className="font-bold flex items-center gap-2 mb-2"><ActivitySquare className="w-5 h-5 text-primary animate-spin" /> MLOps Pipeline Executing</div>
-                                   <div className="w-full h-8 bg-muted rounded animate-pulse" />
-                                   <div className="w-3/4 h-8 bg-muted rounded animate-pulse" />
-                                   <div className="w-1/2 h-8 bg-muted rounded animate-pulse" />
+                                   <div className={`font-bold flex items-center gap-2 mb-2 ${analyzeStep === 1 ? 'text-blue-500' : 'text-primary'}`}><ActivitySquare className="w-5 h-5 animate-spin" /> {analyzeStep === 1 ? 'Step 1: Extracting OCR Abstractions...' : 'Step 2: Feeding XGBoost & PyTorch MLOps...'}</div>
+                                   <div className="w-full bg-muted rounded-full h-2 mb-4">
+                                      <div className={`bg-primary h-2 rounded-full transition-all duration-500 ${analyzeStep === 1 ? 'w-1/3' : 'w-2/3'}`} />
+                                   </div>
+                                   <div className="w-full h-8 bg-muted/50 rounded animate-pulse" />
+                                   <div className="w-3/4 h-8 bg-muted/50 rounded animate-pulse" />
                                 </div>
                             ) : (
                                 <motion.div initial={{opacity:0, x:20}} animate={{opacity:1, x:0}}>

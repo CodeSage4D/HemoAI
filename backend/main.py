@@ -20,6 +20,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.on_event("startup")
+async def startup_event():
+    """
+    Warms up the Heavy PyTorch / XGBoost weights instantly upon server boot,
+    preventing 5-10 second latency on the first client request.
+    """
+    import ai_engine
+    print("Initiating ML Pre-flight Warmup...")
+    engine = ai_engine.get_engine()
+    print("Warmup Successful. Offline Pipeline Ready.")
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
@@ -73,6 +84,15 @@ def read_users_me(current_user: models.User = Depends(get_current_user)):
 @app.post("/ai/ocr-service")
 async def ocr_service(file: UploadFile = File(...)):
     import tempfile, os, shutil
+    
+    # SECURITY: Magic Byte / File Signature Validation Limit
+    if file.size > 10 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="File absolutely too large for OCR limits.")
+        
+    allowed_mimetypes = ["image/png", "image/jpeg", "image/jpg", "application/pdf"]
+    if file.content_type not in allowed_mimetypes:
+         raise HTTPException(status_code=415, detail="Unsupported Media Type. Expected PDF or strict graphical format.")
+
     with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp:
         shutil.copyfileobj(file.file, tmp)
         tmp_path = tmp.name

@@ -1,7 +1,11 @@
 import re
+import os
 import numpy as np
 import xgboost as xgb
 from PIL import Image
+
+# Enforce strictly offline behavior to block outbound API requests for pretrained models
+os.environ["TRANSFORMERS_OFFLINE"] = "1"
 
 try:
     import pytesseract
