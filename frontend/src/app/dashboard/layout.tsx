@@ -6,7 +6,10 @@ import {
   ActivitySquare, 
   Settings,
   LogOut,
-  Bell
+  Bell,
+  Map as MapIcon,
+  FileScan,
+  HeartHandshake
 } from "lucide-react";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -24,8 +27,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <nav className="space-y-1">
             <SidebarItem href="/dashboard" icon={<LayoutDashboard className="w-5 h-5" />} label="Overview" active />
             <SidebarItem href="/dashboard/inventory" icon={<Droplet className="w-5 h-5" />} label="Inventory" />
-            <SidebarItem href="/dashboard/donors" icon={<Users className="w-5 h-5" />} label="Donors" />
             <SidebarItem href="/dashboard/requests" icon={<ActivitySquare className="w-5 h-5" />} label="Requests" />
+            <div className="pt-4 pb-2 px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Advanced Core</div>
+            <SidebarItem href="/dashboard/map" icon={<MapIcon className="w-5 h-5" />} label="Live Radar" />
+            <SidebarItem href="/dashboard/analyzer" icon={<FileScan className="w-5 h-5" />} label="Med Analyzer" />
+            <SidebarItem href="/dashboard/drives" icon={<HeartHandshake className="w-5 h-5" />} label="Donation Drives" />
           </nav>
         </div>
         <div className="p-4 border-t border-border">

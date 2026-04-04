@@ -1,167 +1,119 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Droplet, AlertTriangle, CheckCircle, TrendingUp } from "lucide-react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { Droplet, AlertTriangle, CheckCircle2, Search, ActivitySquare, AlertCircle } from "lucide-react";
 
-const demandData = [
-  { name: 'Mon', A: 4000, B: 2400 },
-  { name: 'Tue', A: 3000, B: 1398 },
-  { name: 'Wed', A: 2000, B: 9800 },
-  { name: 'Thu', A: 2780, B: 3908 },
-  { name: 'Fri', A: 1890, B: 4800 },
-  { name: 'Sat', A: 2390, B: 3800 },
-  { name: 'Sun', A: 3490, B: 4300 },
+// Mock Data for Forecast
+const data = [
+  { name: "Mon", stock: 4000, demand: 2400 },
+  { name: "Tue", stock: 3000, demand: 1398 },
+  { name: "Wed", stock: 2000, demand: 9800 },
+  { name: "Thu", stock: 2780, demand: 3908 },
+  { name: "Fri", stock: 1890, demand: 4800 },
+  { name: "Sat", stock: 2390, demand: 3800 },
+  { name: "Sun", stock: 3490, demand: 4300 },
 ];
 
-export default function DashboardOverview() {
+export default function DashboardPage() {
   return (
-    <div className="space-y-8 min-h-[calc(100vh-120px)]">
-      
-      {/* Top Value Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard 
-          title="Total Blood Units" 
-          value="1,248" 
-          change="+12% from last week" 
-          icon={<Droplet className="w-5 h-5 text-primary" />} 
-          trend="up"
-          delay={0}
-        />
-        <StatCard 
-          title="Critical Requests" 
-          value="24" 
-          change="AI identified 4 high-risk" 
-          icon={<AlertTriangle className="w-5 h-5 text-destructive" />} 
-          trend="up"
-          delay={0.1}
-        />
-        <StatCard 
-          title="Active Donors" 
-          value="892" 
-          change="+34 new this week" 
-          icon={<CheckCircle className="w-5 h-5 text-emerald-500" />} 
-          trend="up"
-          delay={0.2}
-        />
-        <StatCard 
-          title="System Accuracy" 
-          value="98.4%" 
-          change="ML Prediction Rate" 
-          icon={<TrendingUp className="w-5 h-5 text-blue-500" />} 
-          trend="up"
-          delay={0.3}
-        />
+    <div className="flex flex-col gap-6">
+      <div className="flex items-center justify-between">
+         <div>
+            <h1 className="text-3xl font-bold mb-1">Command Overview</h1>
+            <p className="text-muted-foreground text-sm">Central intelligence for regional blood bank logistics and real-time patient triage.</p>
+         </div>
+         <div className="flex bg-destructive/10 border border-destructive/20 text-destructive text-sm font-bold px-4 py-2 rounded-lg items-center gap-2 animate-pulse">
+            <AlertCircle className="w-5 h-5"/> EMERGENCY SHORTAGE ALERT: O- NEGATIVE
+         </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <StatCard title="Total Inventory" value="23,492" icon={<Droplet className="w-5 h-5" />} desc="+4% from last week" />
+        <StatCard title="Dispatch Accuracy" value="99.2%" icon={<CheckCircle2 className="w-5 h-5" />} desc="Based on ML prediction" />
+        <StatCard title="Critical Shortages" value="O-" icon={<AlertTriangle className="w-5 h-5 text-destructive" />} desc="Under 12% capacity target" />
+        <StatCard title="Active Requests" value="142" icon={<ActivitySquare className="w-5 h-5 text-emerald-500" />} desc="4 critical pending" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Chart */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="lg:col-span-2 bg-card rounded-2xl border border-border p-6 shadow-sm"
-        >
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="text-lg font-semibold">Demand Forecasting</h3>
-              <p className="text-sm text-muted-foreground">AI predicted blood requirement vs actuals for O- and A+</p>
-            </div>
-            <select className="bg-muted px-3 py-1.5 rounded-lg text-sm border-none outline-none">
-              <option>Last 7 Days</option>
-              <option>Last 30 Days</option>
-            </select>
-          </div>
-          <div className="h-72 w-full">
+        
+        {/* Real-time AI Demand Prediction */}
+        <motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} className="lg:col-span-2 bg-card border border-border shadow-sm rounded-xl p-6">
+          <h3 className="font-bold text-lg mb-4 flex items-center justify-between">
+             AI Demand Forecast & Shortage Alert Matrix
+             <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded font-medium">Scikit-Learn Active</span>
+          </h3>
+          <p className="text-xs text-muted-foreground mb-6">Graphing theoretical depletion over 7 days based on upcoming scheduled surgeries and historic emergency frequency.</p>
+          <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={demandData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+              <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <defs>
-                  <linearGradient id="colorA" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="oklch(var(--primary))" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="oklch(var(--primary))" stopOpacity={0}/>
+                  <linearGradient id="colorStock" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                   </linearGradient>
-                  <linearGradient id="colorB" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8884d8" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
+                  <linearGradient id="colorDemand" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'var(--muted-foreground)'}} dy={10} />
-                <YAxis hide />
-                <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}/>
-                <Area type="monotone" dataKey="A" stroke="oklch(var(--primary))" strokeWidth={2} fillOpacity={1} fill="url(#colorA)" />
-                <Area type="monotone" dataKey="B" stroke="#8884d8" strokeWidth={2} fillOpacity={1} fill="url(#colorB)" />
+                <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} />
+                <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)' }} />
+                <Area type="monotone" dataKey="stock" stroke="#10b981" fillOpacity={1} fill="url(#colorStock)" />
+                <Area type="monotone" dataKey="demand" stroke="#ef4444" fillOpacity={1} fill="url(#colorDemand)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </motion.div>
 
-        {/* AI Patient Queue */}
-        <motion.div
-           initial={{ opacity: 0, x: 20 }}
-           animate={{ opacity: 1, x: 0 }}
-           transition={{ duration: 0.5, delay: 0.5 }}
-           className="bg-card rounded-2xl border border-border p-6 shadow-sm overflow-hidden flex flex-col"
-        >
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
-              Critical AI Triage
-            </h3>
-            <p className="text-sm text-muted-foreground">Patients prioritized by ML severity score.</p>
+        {/* Patient Risk Scoring Dashboard (Emergency Triage) */}
+        <motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} transition={{delay: 0.1}} className="bg-card border border-border shadow-sm rounded-xl p-6 flex flex-col h-[400px] lg:h-auto overflow-hidden">
+          <div className="flex items-center justify-between mb-4">
+             <h3 className="font-bold text-lg">AI Risk Triage Queue</h3>
+             <Search className="w-4 h-4 text-muted-foreground" />
           </div>
           
-          <div className="flex-1 space-y-4 overflow-y-auto pr-2">
-            
-            <TriageItem name="John Doe" group="O-" hb="4.2" priority="98%" disease="Trauma/Accident" isCritical />
-            <TriageItem name="Sarah Smith" group="A+" hb="6.1" priority="87%" disease="Surgery" isCritical />
-            <TriageItem name="Mike Johnson" group="B-" hb="8.4" priority="62%" disease="Anemia" />
-            <TriageItem name="Emma Davis" group="AB+" hb="9.2" priority="41%" disease="Routine" />
-            
+          <div className="flex-1 overflow-y-auto pr-2 space-y-3">
+             <TriageCard patient="PT-99A" diagnosis="MVA Trauma" hl="5.2" bg="bg-destructive/10" text="text-destructive" bd="border-destructive/20" />
+             <TriageCard patient="PT-12X" diagnosis="Leukemia" hl="6.8" bg="bg-orange-500/10" text="text-orange-500" bd="border-orange-500/20" />
+             <TriageCard patient="PT-88C" diagnosis="Surgical Bleed" hl="7.1" bg="bg-yellow-500/10" text="text-yellow-600 dark:text-yellow-400" bd="border-yellow-500/20" />
+             <TriageCard patient="PT-21L" diagnosis="Routine Anemia" hl="9.4" bg="bg-emerald-500/10" text="text-emerald-500" bd="border-emerald-500/20" />
+             <TriageCard patient="PT-45Q" diagnosis="Observation" hl="10.2" bg="bg-muted" text="text-muted-foreground" bd="border-border" />
           </div>
         </motion.div>
+
       </div>
     </div>
   );
 }
 
-function StatCard({ title, value, change, icon, trend, delay }: any) {
+function StatCard({ title, value, icon, desc }: any) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay }}
-      className="bg-card p-6 rounded-2xl border border-border shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow"
-    >
-      <div className="flex items-center justify-between mb-4">
-        <h4 className="text-muted-foreground text-sm font-medium">{title}</h4>
-        <div className="p-2 bg-muted rounded-xl">{icon}</div>
+    <motion.div whileHover={{y: -5}} className="p-4 bg-card border border-border rounded-xl shadow-sm">
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-sm font-medium text-muted-foreground">{title}</div>
+        <div className="p-2 bg-muted rounded-lg">{icon}</div>
       </div>
-      <div>
-        <h2 className="text-3xl font-bold mb-1">{value}</h2>
-        <p className={`text-xs ${trend === 'up' ? "text-emerald-500" : "text-destructive"}`}>
-          {change}
-        </p>
+      <div className="text-3xl font-bold flex items-baseline gap-2">
+         {value}
       </div>
+      <div className="text-xs text-muted-foreground mt-1 font-medium">{desc}</div>
     </motion.div>
   )
 }
 
-function TriageItem({ name, group, hb, priority, disease, isCritical = false }: any) {
+function TriageCard({ patient, diagnosis, hl, bg, text, bd }: any) {
   return (
-    <div className={`p-4 rounded-xl border ${isCritical ? "bg-destructive/5 border-destructive/20" : "bg-muted/50 border-transparent"} transition-colors hover:bg-muted`}>
-      <div className="flex items-center justify-between mb-2">
-        <span className="font-medium text-sm">{name}</span>
-        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isCritical ? "bg-destructive text-destructive-foreground" : "bg-primary/20 text-primary"}`}>
-          Score {priority}
-        </span>
-      </div>
-      <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>Group: <strong className="text-foreground">{group}</strong></span>
-        <span>Hb: <strong className={isCritical ? "text-destructive font-bold" : "text-foreground"}>{hb} g/dL</strong></span>
-      </div>
-      <div className="mt-2 text-xs text-muted-foreground">
-        Condition: {disease}
-      </div>
-    </div>
+     <div className={`p-4 rounded-xl border ${bd} ${bg} flex items-center justify-between`}>
+        <div>
+           <div className={`font-bold flex items-center gap-1 ${text}`}><ActivitySquare className="w-3 h-3"/> {patient}</div>
+           <div className="text-xs text-foreground mt-1 opacity-80">{diagnosis}</div>
+        </div>
+        <div className="text-right">
+           <div className={`text-xl font-black ${text}`}>{hl}</div>
+           <div className="text-[10px] uppercase tracking-wider font-bold opacity-60">Hgb Score</div>
+        </div>
+     </div>
   )
 }
