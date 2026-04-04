@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 
-from . import models, schemas, auth, ai_engine
-from .database import engine, get_db
+import models, schemas, auth, ai_engine
+from database import engine, get_db
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -77,9 +77,13 @@ async def ocr_service(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, tmp)
         tmp_path = tmp.name
 
-    # Asynchronous offloading for performance blocking prevention
+    # Asynchronous offloading for performance blocking prevention with 30s timeout
     from fastapi.concurrency import run_in_threadpool
-    extracted = await run_in_threadpool(ai_engine.ocr_extraction_service, tmp_path)
+    import asyncio
+    try:
+        extracted = await asyncio.wait_for(run_in_threadpool(ai_engine.ocr_extraction_service, tmp_path), timeout=30.0)
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=504, detail="OCR abstraction service timed out.")
     os.remove(tmp_path)
     return extracted
 

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
-from .models import RoleEnum, BloodGroupEnum, UrgencyChannel, RequestStatus
+from models import RoleEnum, BloodGroupEnum, UrgencyChannel, RequestStatus
 
 class UserCreate(BaseModel):
     email: str
