@@ -14,7 +14,7 @@ app = FastAPI(title="Blood Bank Intelligence API", version="2.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -22,12 +22,34 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_event():
-    """
-    Warms up the Heavy PyTorch / XGBoost weights instantly upon server boot,
-    preventing 5-10 second latency on the first client request.
-    """
-    import ai_engine
+    import os
+    model_path_context = os.path.abspath(os.path.join(os.path.dirname(__file__), "local_models", "distilbert"))
+    model_path_ner = os.path.abspath(os.path.join(os.path.dirname(__file__), "local_models", "bertner"))
+    
+    if not os.path.exists(model_path_context) or not os.path.exists(model_path_ner):
+        print("First Run Detected: Fetching Physical Models for True Offline Execution...")
+        # Temporarily enable online fetching for first boot
+        os.environ["TRANSFORMERS_OFFLINE"] = "0" 
+        from transformers import pipeline
+        
+        os.makedirs(model_path_context, exist_ok=True)
+        os.makedirs(model_path_ner, exist_ok=True)
+        
+        print("Downloading Context Model (Model 1)...")
+        c_pipeline = pipeline("zero-shot-classification", model="typeform/distilbert-base-uncased-mnli")
+        c_pipeline.model.save_pretrained(model_path_context)
+        c_pipeline.tokenizer.save_pretrained(model_path_context)
+        
+        print("Downloading NER Pathology Model (Model 2)...")
+        n_pipeline = pipeline("ner", aggregation_strategy="simple", model="dbmdz/bert-large-cased-finetuned-conll03-english")
+        n_pipeline.model.save_pretrained(model_path_ner)
+        n_pipeline.tokenizer.save_pretrained(model_path_ner)
+        
+        os.environ["TRANSFORMERS_OFFLINE"] = "1"
+        print("Physical Machine Learning Shards Fully Hardcoded. Server safely air-gapped.")
+
     print("Initiating ML Pre-flight Warmup...")
+    import ai_engine
     engine = ai_engine.get_engine()
     print("Warmup Successful. Offline Pipeline Ready.")
 
@@ -65,6 +87,10 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_user)
     return db_user
+
+@app.get("/")
+def read_root():
+    return {"status": "Hemo-Sync API Online", "version": "v1.0.0\nGo to port 3000 for the actual UI."}
 
 @app.post("/token", response_model=schemas.Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
