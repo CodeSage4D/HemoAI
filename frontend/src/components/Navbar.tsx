@@ -16,9 +16,8 @@ export function Navbar() {
   }, []);
 
   const navLinks = [
-    { name: "Report Analysis", href: "/" },
-    { name: "About", href: "/about" },
-    { name: "Services", href: "/services" },
+    { name: "Home", href: "/" },
+    { name: "Report Analysis", href: "/analyze" },
     { name: "Hospitals", href: "/hospitals" },
     { name: "Patients", href: "/patients" },
     { name: "Contact", href: "/contact" },

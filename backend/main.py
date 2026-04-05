@@ -119,7 +119,11 @@ async def ocr_service(file: UploadFile = File(...)):
     if file.content_type not in allowed_mimetypes:
          raise HTTPException(status_code=415, detail="Unsupported Media Type. Expected PDF or strict graphical format.")
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp:
+    import mimetypes
+    ext = mimetypes.guess_extension(file.content_type) or ".png"
+    if file.filename.endswith('.pdf') or file.content_type == "application/pdf": ext = ".pdf"
+    
+    with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp:
         shutil.copyfileobj(file.file, tmp)
         tmp_path = tmp.name
 
@@ -134,12 +138,51 @@ async def ocr_service(file: UploadFile = File(...)):
     return extracted
 
 class MLOpsRequest(schemas.BaseModel):
-    raw_text: str
-    hb: float
-    rbc: float
-    wbc: float
-    platelets: float
-    mcv: float
+    raw_text: str = ""
+    patient_name: str | None = "Unknown Patient"
+    patient_age: str | None = "Unknown"
+    
+    # CBC Panel
+    hb: float = 0.0
+    rbc: float = 0.0
+    wbc: float = 0.0
+    platelets: float = 0.0
+    mcv: float = 0.0
+    hct: float = 0.0
+    mch: float = 0.0
+    mchc: float = 0.0
+    rdw: float = 0.0
+    
+    # Iron Studies
+    iron: float = 0.0
+    ferritin: float = 0.0
+    tibc: float = 0.0
+    
+    # LFT
+    alt: float = 0.0
+    ast: float = 0.0
+    bilirubin: float = 0.0
+    albumin: float = 0.0
+    
+    # KFT
+    creatinine: float = 0.0
+    urea: float = 0.0
+    bun: float = 0.0
+    
+    # Lipids
+    cholesterol: float = 0.0
+    hdl: float = 0.0
+    ldl: float = 0.0
+    triglycerides: float = 0.0
+    
+    # Thyroid & Beyond
+    t3: float = 0.0
+    t4: float = 0.0
+    tsh: float = 0.0
+    glucose: float = 0.0
+    hba1c: float = 0.0
+    vit_b12: float = 0.0
+    vit_d: float = 0.0
 
 @app.post("/ai/final-engine")
 async def final_mlops_engine(payload: MLOpsRequest):
@@ -149,12 +192,7 @@ async def final_mlops_engine(payload: MLOpsRequest):
     from fastapi.concurrency import run_in_threadpool
     result_matrix = await run_in_threadpool(
          engine.run_ensemble, 
-         payload.raw_text, 
-         payload.hb, 
-         payload.rbc, 
-         payload.wbc, 
-         payload.platelets, 
-         payload.mcv
+         payload.model_dump()
     )
     return result_matrix
 
