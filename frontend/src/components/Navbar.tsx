@@ -4,6 +4,7 @@ import Link from "next/link";
 import { HeartPulse, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -42,6 +43,7 @@ export function Navbar() {
             ))}
           </div>
           <div className="flex items-center gap-4 border-l border-border pl-6">
+            <ThemeToggle />
             <Link href="/login" className="text-sm font-medium hover:text-primary transition-colors">
               Login
             </Link>
@@ -54,10 +56,13 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Toggle */}
-        <button className="md:hidden p-2 text-foreground" onClick={() => setMobileMenuOpen(true)}>
-          <Menu className="w-6 h-6" />
-        </button>
+        {/* Mobile Toggle & Theme Toggle */}
+        <div className="flex md:hidden items-center gap-4">
+          <ThemeToggle />
+          <button className="p-2 text-foreground" onClick={() => setMobileMenuOpen(true)}>
+            <Menu className="w-6 h-6" />
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
@@ -87,6 +92,12 @@ export function Navbar() {
               <hr className="border-border my-2" />
               <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="hover:text-primary transition-colors">Login</Link>
               <Link href="/signup" onClick={() => setMobileMenuOpen(false)} className="text-primary hover:text-emerald-500 transition-colors">Create Account</Link>
+            </div>
+            <div className="mt-auto pb-8">
+               <div className="text-sm text-muted-foreground mb-4">Appearance</div>
+               <div className="flex">
+                  <ThemeToggle />
+               </div>
             </div>
           </motion.div>
         )}
