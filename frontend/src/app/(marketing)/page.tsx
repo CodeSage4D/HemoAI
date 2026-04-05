@@ -38,7 +38,11 @@ export default function LandingPage() {
                  },
                  body: JSON.stringify({
                      raw_text: ocrRes.raw_text,
-                     hb_val: ocrRes.hb_val
+                     hb: ocrRes.hb,
+                     rbc: ocrRes.rbc,
+                     wbc: ocrRes.wbc,
+                     platelets: ocrRes.platelets,
+                     mcv: ocrRes.mcv
                  })
              }).then(r => r.json());
              
@@ -47,11 +51,13 @@ export default function LandingPage() {
           } catch(err) {
              console.error("Pipeline failure:", err);
              setResult({
-                 disease: "System Error. Manual Override Required.",
+                 status: "REVIEW_REQUIRED",
+                 conditions: ["System Error. Manual Override Required."],
                  risk_score: 99.9,
                  confidence: 0.0,
                  channel: "RED",
-                 reason: "Network failure isolating the PyTorch microservice container."
+                 reason: String(err),
+                 recommendation: "Network failure isolating the PyTorch microservice container."
              });
              setAnalyzeStep(3);
           }
@@ -126,7 +132,7 @@ export default function LandingPage() {
                                    <div className="grid grid-cols-2 gap-4 mb-4">
                                       <div>
                                          <div className="text-xs font-bold text-muted-foreground uppercase mb-1">Detected Pathology</div>
-                                         <div className="font-black text-lg">{result.disease}</div>
+                                         <div className="font-black text-lg">{result.conditions ? result.conditions.join(', ') : 'Unknown'}</div>
                                       </div>
                                       <div>
                                          <div className="text-xs font-bold text-muted-foreground uppercase mb-1">XGBoost Risk Index</div>
@@ -134,12 +140,19 @@ export default function LandingPage() {
                                       </div>
                                    </div>
 
-                                   <div className="p-4 rounded-xl bg-muted/50 border border-border text-sm font-medium leading-relaxed">
+                                   <div className="p-4 rounded-xl bg-muted/50 border border-border text-sm font-medium leading-relaxed mb-4">
                                        <span className="font-bold text-primary block mb-1">Clinical Reason:</span> 
                                        {result.reason}
                                    </div>
                                    
-                                   <button onClick={() => setChatOpen(!chatOpen)} className="mt-4 w-full py-3 bg-foreground text-background font-bold rounded-lg hover:opacity-90 flex items-center justify-center gap-2">
+                                   {result.recommendation && (
+                                     <div className={`p-4 rounded-xl border text-sm font-medium leading-relaxed mb-4 ${result.status === 'NORMAL' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600' : 'bg-primary/10 border-primary/20'}`}>
+                                         <span className="font-bold block mb-1">AI Recommendation ({result.status}):</span> 
+                                         {result.recommendation}
+                                     </div>
+                                   )}
+                                   
+                                   <button onClick={() => setChatOpen(!chatOpen)} className="w-full py-3 bg-foreground text-background font-bold rounded-lg hover:opacity-90 flex items-center justify-center gap-2">
                                        <Bot className="w-5 h-5"/> Explain via AI Assistant
                                    </button>
                                 </motion.div>
@@ -161,7 +174,7 @@ export default function LandingPage() {
                             <div className="flex gap-4">
                                 <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0"><Bot className="w-4 h-4 text-primary"/></div>
                                 <div className="bg-muted px-4 py-3 rounded-2xl rounded-tl-sm text-sm">
-                                   I am your MLOps Clinical Assistant. Based on the `{result.channel}` channel assignment for `{result.disease}`, {result.channel === 'RED' ? "this is a massive emergency requiring 0-hour blood dispatch immediately from the primary local center." : result.channel === 'GREEN' ? "this is a chronic requirement that has bypassed standard queues for specialized tracking." : "this patient is currently stable but should be monitored for sudden Hb fluctuations."} How else can I assist in interpreting the data?
+                                   {"I am your MLOps Clinical Assistant. Based on the `" + result.channel + "` channel assignment for `" + (result.conditions ? result.conditions.join(', ') : 'Unknown') + "`, " + (result.channel === 'RED' ? "this is a massive emergency requiring 0-hour blood dispatch immediately from the primary local center." : result.channel === 'GREEN' ? "this is a chronic requirement that has bypassed standard queues for specialized tracking." : "this patient is currently stable but should be monitored for sudden Hb fluctuations.") + " How else can I assist in interpreting the data?"}
                                 </div>
                             </div>
                             <div className="flex gap-4 flex-row-reverse">
