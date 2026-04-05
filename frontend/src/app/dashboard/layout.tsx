@@ -9,7 +9,8 @@ import {
   Bell,
   Map as MapIcon,
   FileScan,
-  HeartHandshake
+  HeartHandshake,
+  ShieldAlert
 } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
@@ -45,6 +46,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <>
                 <SidebarItem href="/dashboard/requests" icon={<ActivitySquare className="w-5 h-5" />} label="My Requests" />
                 <SidebarItem href="/dashboard/drives" icon={<HeartHandshake className="w-5 h-5" />} label="Donation Drives" />
+                
+                <div className="pt-6 pb-2">
+                  <Link href="/dashboard/sos" className="flex items-center gap-3 px-4 py-3 bg-destructive/10 text-destructive border border-destructive/20 rounded-xl text-sm font-bold shadow-sm hover:bg-destructive hover:text-white transition-all w-full leading-none">
+                     <ShieldAlert className="w-5 h-5 animate-pulse" /> Emergency SOS
+                  </Link>
+                </div>
               </>
             )}
 

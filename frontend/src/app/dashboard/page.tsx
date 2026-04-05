@@ -5,6 +5,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "rec
 import { Droplet, AlertTriangle, CheckCircle2, Search, ActivitySquare, AlertCircle, Calendar, Heart, FileText, ArrowRight } from "lucide-react";
 import { metricsApi } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
 
 export default function DashboardSwitcher() {
   const { user, loading: authLoading } = useAuth();
@@ -214,9 +215,9 @@ function PatientDashboard() {
          <Calendar className="w-10 h-10 text-muted-foreground mx-auto mb-4 opacity-50" />
          <h3 className="font-bold text-lg mb-2">Schedule a Donation</h3>
          <p className="text-sm text-muted-foreground max-w-md mx-auto mb-6">Contribute to the regional blood pool. View active drives in your area (Madhya Pradesh targeting Gwalior and Indore nodes).</p>
-         <button className="px-6 py-3 bg-primary text-primary-foreground font-bold rounded-xl shadow-lg hover:opacity-90 flex mx-auto items-center gap-2">
+         <Link href="/dashboard/drives" className="px-6 py-3 bg-primary text-primary-foreground font-bold rounded-xl shadow-lg hover:opacity-90 flex mx-auto items-center justify-center gap-2 max-w-[280px]">
             View Donation Campaigns <ArrowRight className="w-4 h-4" />
-         </button>
+         </Link>
       </div>
     </div>
   )
