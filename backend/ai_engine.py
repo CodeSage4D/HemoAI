@@ -32,7 +32,9 @@ class MultiModelHybridEngine:
         self.diagnostic_nlp = pipeline("zero-shot-classification", model=target_model)
         
         # Model 2: Disease Categorization Extractor (NER Entity extraction logic)
-        self.ner_pipeline = pipeline("ner", aggregation_strategy="simple", model="dbmdz/bert-large-cased-finetuned-conll03-english")
+        model_path_ner = os.path.abspath(os.path.join(os.path.dirname(__file__), "local_models", "bertner"))
+        target_model_ner = model_path_ner if os.path.exists(model_path_ner) else "dbmdz/bert-large-cased-finetuned-conll03-english"
+        self.ner_pipeline = pipeline("ner", aggregation_strategy="simple", model=target_model_ner)
         
         # Model 3: XGBoost ML Risk Engine
         self.xgb_model = xgb.XGBRegressor(
@@ -53,7 +55,7 @@ class MultiModelHybridEngine:
         # 1. NLP Context Extraction (Transformers)
         # Determines what the document is fundamentally talking about
         context_classes = ["chronic blood disorder", "acute physical trauma", "routine medical observation"]
-        context_res = self.diagnostic_nlp(raw_text=raw_ocr_text[:500], candidate_labels=context_classes)
+        context_res = self.diagnostic_nlp(sequences=raw_ocr_text[:500], candidate_labels=context_classes)
         primary_context = context_res["labels"][0]
         context_confidence = context_res["scores"][0]
         
