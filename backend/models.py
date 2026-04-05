@@ -55,7 +55,7 @@ class Hospital(Base):
 class BloodBank(Base):
     __tablename__ = "blood_banks"
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
+    name = Column(String, index=True)
     location_lat = Column(Float)
     location_lng = Column(Float)
     
@@ -87,19 +87,19 @@ class MedicalReport(Base):
 class Inventory(Base):
     __tablename__ = "inventory"
     id = Column(Integer, primary_key=True, index=True)
-    blood_bank_id = Column(Integer, ForeignKey("blood_banks.id"))
+    blood_bank_id = Column(Integer, ForeignKey("blood_banks.id"), index=True)
     blood_group = Column(Enum(BloodGroupEnum), index=True)
     units = Column(Integer, default=1)
-    expiry_date = Column(DateTime)
+    expiry_date = Column(DateTime, index=True)
     
     blood_bank = relationship("BloodBank", back_populates="inventory")
 
 class BloodRequest(Base):
     __tablename__ = "blood_requests"
     id = Column(Integer, primary_key=True, index=True)
-    patient_id = Column(Integer, ForeignKey("patients.id"))
+    patient_id = Column(Integer, ForeignKey("patients.id"), index=True)
     units_required = Column(Integer)
-    urgency_channel = Column(Enum(UrgencyChannel)) # Core output of AI pipeline
-    priority_score = Column(Float) # Core output of AI pipeline (0-100)
-    status = Column(Enum(RequestStatus), default=RequestStatus.PENDING)
+    urgency_channel = Column(Enum(UrgencyChannel), index=True) # Core output of AI pipeline
+    priority_score = Column(Float, index=True) # Core output of AI pipeline (0-100)
+    status = Column(Enum(RequestStatus), default=RequestStatus.PENDING, index=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
