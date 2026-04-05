@@ -135,7 +135,11 @@ async def ocr_service(file: UploadFile = File(...)):
 
 class MLOpsRequest(schemas.BaseModel):
     raw_text: str
-    hb_val: float
+    hb: float
+    rbc: float
+    wbc: float
+    platelets: float
+    mcv: float
 
 @app.post("/ai/final-engine")
 async def final_mlops_engine(payload: MLOpsRequest):
@@ -143,7 +147,15 @@ async def final_mlops_engine(payload: MLOpsRequest):
     engine = ai_engine.get_engine()
     
     from fastapi.concurrency import run_in_threadpool
-    result_matrix = await run_in_threadpool(engine.run_ensemble, payload.raw_text, payload.hb_val)
+    result_matrix = await run_in_threadpool(
+         engine.run_ensemble, 
+         payload.raw_text, 
+         payload.hb, 
+         payload.rbc, 
+         payload.wbc, 
+         payload.platelets, 
+         payload.mcv
+    )
     return result_matrix
 
 @app.post("/requests", response_model=schemas.BloodRequestResponse)
@@ -246,3 +258,7 @@ def get_real_dashboard_telemetry(db: Session = Depends(get_db)):
             {"day": "Sun", "demand": 0},
         ]
     }
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
