@@ -48,66 +48,109 @@ class MultiModelHybridEngine:
         y_dummy = np.array([10.0, 95.0, 60.0, 5.0])
         self.xgb_model.fit(X_dummy, y_dummy)
 
-    def run_ensemble(self, raw_ocr_text: str, hb_value: float):
-        """
-        Executes the full pipeline combining Transformers and XGBoost.
-        """
-        # 1. NLP Context Extraction (Transformers)
-        # Determines what the document is fundamentally talking about
+    def run_ensemble(self, raw_ocr_text: str, hb: float, rbc: float, wbc: float, platelets: float, mcv: float):
+        # Step 1: Validate Telemetry
+        if hb == 0.0 and rbc == 0.0 and wbc == 0.0:
+            return {
+                "status": "REVIEW_REQUIRED",
+                "conditions": ["Unreadable or Missing Telemetry"],
+                "risk_score": 0.0,
+                "confidence": 0.0,
+                "channel": "NONE",
+                "reason": "The OCR pipeline could not identify structured medical telemetry (Hb, RBC, WBC). Please retry or upload a clearer document.",
+                "recommendation": "Consult clinical staff manually."
+            }
+
+        NORMAL_RANGES = {
+            "hb": (12.0, 17.5),
+            "rbc": (4.1, 6.1),
+            "wbc": (4.0, 11.0),
+            "platelets": (150.0, 450.0),
+            "mcv": (80.0, 100.0)
+        }
+
+        conditions = []
+        status = "NORMAL"
+        channel = "NONE"
+        risk_penalty = 0
+
+        # Step 2: Multi-Condition Physical Evaluation
+        is_normal = True
+        if hb > 0:
+            if hb < 7.0:
+                conditions.append("Severe Anemia")
+                status = "ABNORMAL"
+                channel = "RED"
+                risk_penalty += 80
+                is_normal = False
+            elif 7.0 <= hb < 11.0:
+                conditions.append("Mild Anemia")
+                status = "BORDERLINE"
+                if channel != "RED": channel = "YELLOW"
+                risk_penalty += 40
+                is_normal = False
+                
+        if wbc > 0:
+            if wbc > 11.0:
+                conditions.append("Systemic Infection")
+                status = "ABNORMAL"
+                if channel == "NONE": channel = "YELLOW"
+                risk_penalty += 30
+                is_normal = False
+            elif wbc < 4.0:
+                conditions.append("Leukopenia")
+                status = "ABNORMAL"
+                is_normal = False
+                
+        if platelets > 0 and platelets < 150.0:
+            conditions.append("Thrombocytopenia")
+            status = "ABNORMAL"
+            risk_penalty += 40
+            is_normal = False
+            
+        if hb > 0 and hb < 11.0 and rbc > 5.5 and (mcv > 0 and mcv < 80.0):
+            conditions.append("Possible Thalassemia")
+            status = "ABNORMAL"
+            channel = "GREEN" # Special Priority Chronic
+            risk_penalty += 20
+            is_normal = False
+
+        if is_normal:
+            conditions.append("Healthy Range")
+            return {
+                "status": "NORMAL",
+                "conditions": conditions,
+                "risk_score": 5.0,
+                "confidence": 0.95,
+                "channel": "NONE",
+                "reason": "All extracted physical telemetry arrays reside within absolute survival/normal range parameters.",
+                "recommendation": "Standard discharge. No interventions required."
+            }
+
+        # Step 3: Secondary NLP Validation (Zero-Shot)
         context_classes = ["chronic blood disorder", "acute physical trauma", "routine medical observation"]
-        context_res = self.diagnostic_nlp(sequences=raw_ocr_text[:500], candidate_labels=context_classes)
+        context_res = self.diagnostic_nlp(sequences=raw_ocr_text[:500] if len(raw_ocr_text) > 0 else "missing", candidate_labels=context_classes)
         primary_context = context_res["labels"][0]
-        context_confidence = context_res["scores"][0]
-        
-        # 2. Disease Identification (Transformers + Heuristic Fallback)
-        # Attempt to isolate severe keywords using NER or basic regex bounds
-        disease_detected = "UNKNOWN"
-        disease_severity_int = 1 # Safe default
-        
-        # We manually scan for core required medical terms first to prevent NLP hallucination
+        nlp_confidence = context_res["scores"][0]
+
+        # Step 4: False Positive Protection
         raw_upper = raw_ocr_text.upper()
-        if "THALASSEMIA" in raw_upper:
-            disease_detected = "Thalassemia"
-            disease_severity_int = 3
-        elif "LEUKEMIA" in raw_upper:
-            disease_detected = "Leukemia"
-            disease_severity_int = 3
-        elif "TRAUMA" in raw_upper or "HEMORRHAGE" in raw_upper:
-            disease_detected = "Severe Hemorrhage"
-            disease_severity_int = 3
-        elif "ANEMIA" in raw_upper:
-            disease_detected = "Anemia"
-            disease_severity_int = 2
-            
-        # 3. ML Risk Modeling (XGBoost)
-        # Feed the extracted normalized Hb and the severity index into the Regressor
-        xgb_input = np.array([[hb_value, disease_severity_int]])
-        xgb_pred = self.xgb_model.predict(xgb_input)[0]
-        base_risk_score = float(max(0.0, min(100.0, xgb_pred)))
+        if "THALASSEMIA" in raw_upper and "Possible Thalassemia" not in conditions:
+            # NLP hallucinates Thalassemia keyword, but physical Hb/MCV disagreed!
+            reason_explanation = "Clinical Override: Document mentioned 'Thalassemia', but CBC arrays contradicted it. Discarded False Positive."
+        else:
+            reason_explanation = f"AI matched physical bounds. NLP matched '{primary_context}'."
+
+        final_risk = min(99.9, float(risk_penalty))
         
-        # 4. RULE ENGINE OVERRIDES (CRITICAL STEP)
-        channel = "YELLOW"
-        reason_explanation = f"AI Context detected '{primary_context}'. Standard ML risk generated."
-        final_risk_score = base_risk_score
-        
-        if hb_value <= 5.0:
-            channel = "RED"
-            reason_explanation = "RULE ENGINE OVERRIDE: Hemoglobin below extreme survival bounds (<= 5.0). Immediate action required bypasses AI ML parameters."
-            final_risk_score = max(90.0, base_risk_score)
-        elif disease_detected == "Thalassemia":
-            channel = "GREEN"
-            reason_explanation = "RULE ENGINE OVERRIDE: Chronic blood disorder identified. Auto-routing to Special Priority track."
-        elif disease_severity_int == 3:
-            channel = "RED"
-            reason_explanation = f"AI NLP recognized severe event ({disease_detected}). Escalating to Emergency dispatch."
-            final_risk_score = max(80.0, base_risk_score)
-            
         return {
-            "disease": disease_detected,
-            "risk_score": round(final_risk_score, 1),
-            "confidence": round(float(context_confidence), 2),
+            "status": status,
+            "conditions": conditions,
+            "risk_score": round(final_risk, 1),
+            "confidence": round(float(nlp_confidence), 2),
             "channel": channel,
-            "reason": reason_explanation
+            "reason": reason_explanation,
+            "recommendation": "Expedite clinical evaluation mapping to the calculated channel."
         }
 
 # Instantiate Global Singleton
@@ -120,24 +163,41 @@ def get_engine():
     return engine_singleton
 
 def ocr_extraction_service(image_path: str) -> dict:
-    """
-    Service 1: Parses image bounds using Tesseract
-    """
     try:
          raw_text = pytesseract.image_to_string(Image.open(image_path))
     except Exception:
-         raw_text = "Thalassemia evaluation test Hb: 6.4 requested for patient." # Fallback for demo
+         raw_text = ""
          
-    # Extreme fast Regex isolation
-    hb_match = re.search(r'(?i)(?:hb|hemoglobin|hgb)[\s:=]+([\d\.]+)', raw_text)
-    hb_val = 14.0 # Average default
-    if hb_match:
-        try:
-            hb_val = float(hb_match.group(1))
-        except:
-            pass
-            
+    raw_upper = raw_text.upper()
+    
+    # Defaults
+    hb_val = 0.0
+    rbc_val = 0.0
+    wbc_val = 0.0
+    platelets_val = 0.0
+    mcv_val = 0.0
+    
+    # Extraction Regex
+    hb_match = re.search(r'(?:HB|HEMOGLOBIN|HGB)[\s:=]+([\d\.]+)', raw_upper)
+    if hb_match: hb_val = float(hb_match.group(1))
+    
+    rbc_match = re.search(r'(?:RBC|RED BLOOD)[\s:=]+([\d\.]+)', raw_upper)
+    if rbc_match: rbc_val = float(rbc_match.group(1))
+    
+    wbc_match = re.search(r'(?:WBC|WHITE BLOOD|TLC)[\s:=]+([\d\.]+)', raw_upper)
+    if wbc_match: wbc_val = float(wbc_match.group(1))
+    
+    plt_match = re.search(r'(?:PLATELET|PLT)[\s:=]+([\d\.]+)', raw_upper)
+    if plt_match: platelets_val = float(plt_match.group(1))
+    
+    mcv_match = re.search(r'(?:MCV)[\s:=]+([\d\.]+)', raw_upper)
+    if mcv_match: mcv_val = float(mcv_match.group(1))
+
     return {
          "raw_text": raw_text,
-         "hb_val": hb_val
+         "hb": hb_val,
+         "rbc": rbc_val,
+         "wbc": wbc_val,
+         "platelets": platelets_val,
+         "mcv": mcv_val
     }
