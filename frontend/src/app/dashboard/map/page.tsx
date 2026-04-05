@@ -41,7 +41,7 @@ export default function LiveRadarPage() {
           <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} transition={{delay: 0.1}} className="bg-card p-4 rounded-xl border border-border shadow-sm">
              <h4 className="font-bold text-sm mb-1 text-destructive flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-destructive animate-ping" /> Critical Zones</h4>
              <p className="text-2xl font-black">1</p>
-             <p className="text-xs text-muted-foreground mt-1">Mass casualty event logged near Route 85.</p>
+             <p className="text-xs text-muted-foreground mt-1">Mass casualty event logged near AB Road.</p>
           </motion.div>
            <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} transition={{delay: 0.2}} className="bg-card p-4 rounded-xl border border-border shadow-sm">
              <h4 className="font-bold text-sm mb-1 text-primary flex items-center gap-2"><Truck className="w-4 h-4" /> Active Dispatches</h4>
