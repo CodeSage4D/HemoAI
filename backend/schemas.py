@@ -15,7 +15,7 @@ class UserResponse(BaseModel):
     full_name: str
     role: RoleEnum
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class Token(BaseModel):
     access_token: str
@@ -36,7 +36,7 @@ class BloodRequestResponse(BaseModel):
     status: RequestStatus
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class BloodRequestCreate(BaseModel):
     patient_id: int
