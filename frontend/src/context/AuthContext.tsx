@@ -2,6 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { toast } from "sonner";
+import { ActivitySquare } from "lucide-react";
 
 interface User {
   id: number;
@@ -52,19 +54,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const fetchUser = async (authToken: string) => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
     try {
-      const res = await fetch("http://localhost:8000/users/me", {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 10000);
+      
+      const res = await fetch(`${apiUrl}/users/me`, {
         headers: { Authorization: `Bearer ${authToken}` },
+        signal: controller.signal
       });
+      
+      clearTimeout(id);
+
       if (res.ok) {
         const data = await res.json();
         setUser(data);
       } else {
         // Token invalid or expired
+        toast.error("Session expired, please login again");
         logout();
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Auth fetch error:", err);
+      if (err.name === 'AbortError' || err.message.includes("Failed to fetch")) {
+         toast.error("Network Error: Could not connect to the authentication server.");
+         setUser(null); // Explicit fallback
+      } else {
+         toast.error("Authentication Error");
+      }
     } finally {
       setLoading(false);
     }
@@ -86,6 +103,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+      {loading && (
+        <div className="fixed inset-0 z-[9999] bg-background/80 backdrop-blur-sm flex items-center justify-center">
+            <div className="flex flex-col items-center gap-4">
+               <ActivitySquare className="w-10 h-10 animate-spin text-primary" />
+               <p className="font-bold uppercase tracking-widest text-sm animate-pulse opacity-70">Verifying Identity</p>
+            </div>
+        </div>
+      )}
       {children}
     </AuthContext.Provider>
   );

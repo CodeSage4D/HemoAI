@@ -31,30 +31,52 @@ export default function AnalyzePage() {
           setResult(null);
           setOcrData(null);
           
-          try {
+         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+         try {
              // 1. Hit OCR Service Engine
              const ocrForm = new FormData();
              ocrForm.append("file", f);
-             const ocrRes = await fetch("http://localhost:8000/ai/ocr-service", {
+             
+             const ocrController = new AbortController();
+             const ocrTimeout = setTimeout(() => ocrController.abort(), 20000); // 20s wait max for OCR
+             
+             const ocrRes = await fetch(`${apiUrl}/ai/ocr-service`, {
                  method: "POST",
-                 body: ocrForm
-             }).then(r => r.json());
+                 body: ocrForm,
+                 signal: ocrController.signal
+             }).then(r => {
+                 if (!r.ok) throw new Error(`OCR Error: ${r.statusText}`);
+                 return r.json();
+             });
+             clearTimeout(ocrTimeout);
              
              setOcrData(ocrRes);
              setAnalyzeStep(2);
 
              // 2. Hit Ensemble PyTorch Engine with complete 30-parameter payload
-             const mlRes = await fetch("http://localhost:8000/ai/final-engine", {
+             const mlController = new AbortController();
+             const mlTimeout = setTimeout(() => mlController.abort(), 15000);
+             
+             const mlRes = await fetch(`${apiUrl}/ai/final-engine`, {
                  method: "POST",
                  headers: { "Content-Type": "application/json" },
-                 body: JSON.stringify(ocrRes)
-             }).then(r => r.json());
+                 body: JSON.stringify(ocrRes),
+                 signal: mlController.signal
+             }).then(r => {
+                 if (!r.ok) throw new Error(`Engine Error: ${r.statusText}`);
+                 return r.json();
+             });
+             clearTimeout(mlTimeout);
              
              setResult(mlRes);
              setAnalyzeStep(3);
-          } catch(err) {
+          } catch(err: any) {
              console.error("Pipeline failure:", err);
-             setResult({ status: "REVIEW_REQUIRED", conditions: ["System Error"], risk_score: 99.9, confidence: 0.0, channel: "RED", reason: String(err), recommendation: "Network architecture failure." });
+             let errorMsg = String(err);
+             if (err.name === 'AbortError' || errorMsg.includes('Failed to fetch')) {
+                 errorMsg = "Network connection failed. The AI backend is currently unavailable.";
+             }
+             setResult({ status: "REVIEW_REQUIRED", conditions: ["System Error"], risk_score: 99.9, confidence: 0.0, channel: "RED", reason: errorMsg, recommendation: "Please verify backend server status." });
              setAnalyzeStep(3);
           }
       }
@@ -101,15 +123,30 @@ export default function AnalyzePage() {
       setOcrData(parsedData);
       
       try {
-             const mlRes = await fetch("http://localhost:8000/ai/final-engine", {
+             const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+             const mlController = new AbortController();
+             const mlTimeout = setTimeout(() => mlController.abort(), 15000);
+             
+             const mlRes = await fetch(`${apiUrl}/ai/final-engine`, {
                  method: "POST",
                  headers: { "Content-Type": "application/json" },
-                 body: JSON.stringify(parsedData)
-             }).then(r => r.json());
+                 body: JSON.stringify(parsedData),
+                 signal: mlController.signal
+             }).then(r => {
+                 if (!r.ok) throw new Error(`Engine Error: ${r.statusText}`);
+                 return r.json();
+             });
+             clearTimeout(mlTimeout);
+             
              setResult(mlRes);
              setAnalyzeStep(3);
-      } catch(err) {
-             setResult({ status: "REVIEW_REQUIRED", conditions: ["API Error"], risk_score: 99.9, confidence: 0.0, channel: "RED", reason: String(err), recommendation: "Manual Mode Network failure." });
+      } catch(err: any) {
+             console.error("Manual Entry Pipeline failure:", err);
+             let errorMsg = String(err);
+             if (err.name === 'AbortError' || errorMsg.includes('Failed to fetch')) {
+                 errorMsg = "Network connection failed. The AI backend is currently unavailable.";
+             }
+             setResult({ status: "REVIEW_REQUIRED", conditions: ["API Error"], risk_score: 99.9, confidence: 0.0, channel: "RED", reason: errorMsg, recommendation: "Manual Mode Network failure. Verify backend server status." });
              setAnalyzeStep(3);
       }
   };

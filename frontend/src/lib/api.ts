@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:8000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 // Helper to get token
 const getAuthHeaders = (): Record<string, string> => {
@@ -6,8 +6,8 @@ const getAuthHeaders = (): Record<string, string> => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
-// Generic Fetch Wrapper
-export async function apiFetch(endpoint: string, options: RequestInit = {}) {
+// Generic Fetch Wrapper with Timeout
+export async function apiFetch(endpoint: string, options: RequestInit = {}, timeoutMs = 15000) {
   const customHeaders = options.headers as Record<string, string> || {};
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -15,17 +15,34 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
     ...customHeaders,
   };
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => null);
-    throw new Error(errorData?.detail || `API Error: ${response.status}`);
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers,
+      signal: controller.signal,
+    });
+    
+    clearTimeout(id);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.detail || `API Error: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (err: any) {
+    clearTimeout(id);
+    if (err.name === 'AbortError') {
+      throw new Error("Connection Timeout: The server is taking too long to respond.");
+    }
+    if (err.message.includes("Failed to fetch")) {
+      throw new Error("Connection Error: Unable to reach the server. Please check your connection.");
+    }
+    throw err;
   }
-
-  return response.json();
 }
 
 // Named exports for clarity across UI components
