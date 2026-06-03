@@ -30,10 +30,14 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}, time
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
-      throw new Error(errorData?.detail || `API Error: ${response.status}`);
+      throw new Error(errorData?.message || errorData?.detail || `API Error: ${response.status}`);
     }
 
-    return await response.json();
+    const json = await response.json();
+    if (json && json.status === "success" && json.data !== undefined) {
+      return json.data;
+    }
+    return json;
   } catch (err: unknown) {
     clearTimeout(id);
     if (err instanceof Error) {
@@ -68,25 +72,28 @@ export interface BloodRequestPayload {
 
 // Named exports for clarity across UI components
 export const authApi = {
-  login: async (body: URLSearchParams) => {
-    const res = await fetch(`${API_BASE_URL}/auth/token`, {
+  login: async (email: string, password: string) => {
+    return apiFetch("/auth/login", {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: body.toString(),
-      credentials: "include",
+      body: JSON.stringify({ email, password }),
     });
-    if (!res.ok) {
-      const err = await res.json().catch(() => null);
-      throw new Error(err?.detail || "Login Failed");
-    }
-    return res.json();
   },
-  signup: (userData: SignupPayload) => apiFetch("/auth/users", { method: "POST", body: JSON.stringify(userData) }),
+  signup: (userData: SignupPayload) => {
+    const { full_name, ...rest } = userData;
+    return apiFetch("/auth/register", {
+      method: "POST",
+      body: JSON.stringify({
+        ...rest,
+        fullName: full_name,
+      }),
+    });
+  },
 };
 
 export const metricsApi = {
   getDashboardStats: () => apiFetch("/dashboard/stats"),
-  getInventory: () => apiFetch("/logistics/inventory"), // Assuming placeholder or future route
+  getInventory: () => apiFetch("/logistics/inventory"),
   getRequests: () => apiFetch("/logistics/requests"),
   submitRequest: (payload: BloodRequestPayload) => apiFetch("/logistics/requests", { method: "POST", body: JSON.stringify(payload) }),
+  updateRequestStatus: (id: string, status: string) => apiFetch(`/logistics/requests/${id}`, { method: "PATCH", body: JSON.stringify({ status }) }),
 };

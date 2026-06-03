@@ -22,3 +22,9 @@ export const routeBestBankSchema = z.object({
     bloodGroup: z.nativeEnum(BloodGroup),
   }),
 });
+
+export const updateRequestStatusSchema = z.object({
+  body: z.object({
+    status: z.enum(['PENDING', 'APPROVED', 'DISPATCHED', 'FULFILLED', 'CANCELLED']),
+  }),
+});

@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { ActivitySquare } from "lucide-react";
 
 interface User {
-  id: number;
+  id: string;
   email: string;
   role: string;
   full_name: string;
@@ -58,8 +58,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       clearTimeout(id);
 
       if (res.ok) {
-        const data = await res.json();
-        setUser(data);
+        const json = await res.json();
+        const rawUser = json.data;
+        if (rawUser) {
+          setUser({
+            id: rawUser.id,
+            email: rawUser.email,
+            role: rawUser.role,
+            full_name: rawUser.fullName || rawUser.full_name || '',
+          });
+        }
       } else {
         toast.error("Session expired, please login again");
         logout();

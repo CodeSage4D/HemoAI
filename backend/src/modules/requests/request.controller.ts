@@ -58,5 +58,16 @@ export class RequestController {
       next(error);
     }
   }
+
+  async updateStatus(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      const result = await requestService.updateRequestStatus(id, status as any);
+      return sendSuccess(res, result, 'Blood request status updated successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 export default RequestController;

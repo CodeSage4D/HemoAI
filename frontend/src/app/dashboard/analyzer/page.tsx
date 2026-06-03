@@ -133,7 +133,8 @@ export default function AnalyzerPage() {
           throw new Error(errData?.message || "OCR Service parsing failed.");
         }
         
-        const ocrPayload = await ocrResponse.json();
+        const ocrResponseJson = await ocrResponse.json();
+        const ocrPayload = ocrResponseJson.status === "success" ? ocrResponseJson.data : ocrResponseJson;
         setOcrData(ocrPayload);
         setAnalyzeStep(2);
 
@@ -149,7 +150,8 @@ export default function AnalyzerPage() {
           throw new Error(errData?.message || "AI decision engine failed.");
         }
 
-        const finalResult = await engineResponse.json();
+        const engineResponseJson = await engineResponse.json();
+        const finalResult = engineResponseJson.status === "success" ? engineResponseJson.data : engineResponseJson;
         setResult(finalResult);
         setAnalyzeStep(3);
       } catch (err: any) {
@@ -214,7 +216,8 @@ export default function AnalyzerPage() {
         throw new Error(errData?.message || "AI manual triage pipeline failed.");
       }
 
-      const finalResult = await response.json();
+      const resJson = await response.json();
+      const finalResult = resJson.status === "success" ? resJson.data : resJson;
       setResult(finalResult);
       setAnalyzeStep(3);
     } catch (err: any) {

@@ -1,6 +1,7 @@
 import { prisma } from '../../config/db';
 import { AIService } from '../ai/ai.service';
 import { BloodGroup, UrgencyChannel, RequestStatus } from '@prisma/client';
+import { encryptField, decryptField } from '../../utils/encryption';
 
 const aiService = new AIService();
 
@@ -69,12 +70,13 @@ export class RequestService {
         }
       }
 
-      const existingPatient = await prisma.patient.findFirst({
+      const patients = await prisma.patient.findMany({
         where: {
           hospitalId,
-          name
         }
       });
+
+      const existingPatient = patients.find(p => decryptField(p.name) === name);
 
       if (existingPatient) {
         finalPatientId = existingPatient.id;
@@ -82,10 +84,11 @@ export class RequestService {
         const newPatient = await prisma.patient.create({
           data: {
             hospitalId,
-            name,
+            name: encryptField(name),
             age,
             gender,
-            bloodGroup
+            bloodGroup,
+            chronicConditions: encryptField('None')
           }
         });
         finalPatientId = newPatient.id;
@@ -117,7 +120,7 @@ export class RequestService {
   }
 
   async getPrioritizedRequests() {
-    return prisma.bloodRequest.findMany({
+    const requests = await prisma.bloodRequest.findMany({
       orderBy: {
         priorityScore: 'desc',
       },
@@ -130,6 +133,39 @@ export class RequestService {
         },
       },
     });
+
+    return requests.map((r: any) => {
+      if (r.patient) {
+        return {
+          ...r,
+          patient: {
+            ...r.patient,
+            name: decryptField(r.patient.name),
+          },
+        };
+      }
+      return r;
+    });
+  }
+
+  async updateRequestStatus(id: string, status: RequestStatus) {
+    const request = await prisma.bloodRequest.update({
+      where: { id },
+      data: { status },
+      include: {
+        patient: {
+          select: {
+            name: true,
+            bloodGroup: true,
+          },
+        },
+      },
+    });
+
+    if (request.patient) {
+      request.patient.name = decryptField(request.patient.name);
+    }
+    return request;
   }
 
   private computeHaversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {

@@ -20,12 +20,8 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const body = new URLSearchParams({
-        username: email,
-        password: password
-      });
-      const data = await authApi.login(body);
-      login(data.access_token);
+      const data = await authApi.login(email, password);
+      login(data.token);
     } catch (err: unknown) {
       if (err instanceof Error) {
          setError(err.message || "Failed to login. Check credentials.");

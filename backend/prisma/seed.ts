@@ -1,5 +1,6 @@
 import { PrismaClient, Role, BloodGroup } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { encryptField } from '../src/utils/encryption';
 
 const prisma = new PrismaClient();
 
@@ -72,11 +73,11 @@ async function main() {
   const patient = await prisma.patient.create({
     data: {
       hospitalId: hospital.id,
-      name: 'John Doe',
+      name: encryptField('John Doe'),
       age: 45,
       gender: 'Male',
       bloodGroup: BloodGroup.O_NEG,
-      chronicConditions: 'None',
+      chronicConditions: encryptField('None'),
     },
   });
 

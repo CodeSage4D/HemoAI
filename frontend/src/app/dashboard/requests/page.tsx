@@ -26,6 +26,7 @@ export default function RequestsPage() {
   const [requests, setRequests] = useState<RequestItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -38,6 +39,19 @@ export default function RequestsPage() {
       setError(err.message || "Unable to retrieve priority blood requests.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdateStatus = async (id: string, status: string) => {
+    setUpdatingId(id);
+    try {
+      await metricsApi.updateRequestStatus(id, status);
+      await fetchRequests();
+    } catch (err: any) {
+      console.error("Failed to update status:", err);
+      setError(err.message || "Unable to update request status.");
+    } finally {
+      setUpdatingId(null);
     }
   };
 
@@ -110,15 +124,32 @@ export default function RequestsPage() {
                    <span className="text-xs font-bold px-3 py-1 bg-muted border border-border rounded-lg">
                      Score: {d.priorityScore.toFixed(1)}
                    </span>
-                   <span className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${d.status === 'PENDING' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-emerald-500/20 text-emerald-500'}`}>
-                      {d.status}
-                   </span>
-                   {isHospital && d.status === 'PENDING' && (
-                      <div className="flex gap-2">
-                         <button className="w-10 h-10 rounded-lg border border-border flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-colors hover:border-emerald-500"><Check className="w-5 h-5"/></button>
-                         <button className="w-10 h-10 rounded-lg border border-border flex items-center justify-center hover:bg-destructive hover:text-white transition-colors hover:border-destructive"><X className="w-5 h-5"/></button>
-                      </div>
-                   )}
+                    <span className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${
+                      d.status === 'PENDING' ? 'bg-yellow-500/20 text-yellow-500' :
+                      d.status === 'APPROVED' ? 'bg-emerald-500/20 text-emerald-500' :
+                      d.status === 'CANCELLED' ? 'bg-destructive/20 text-destructive' :
+                      'bg-muted text-muted-foreground'
+                    }`}>
+                       {d.status}
+                    </span>
+                    {isHospital && d.status === 'PENDING' && (
+                       <div className="flex gap-2">
+                          <button 
+                            disabled={updatingId !== null}
+                            onClick={() => handleUpdateStatus(d.id, 'APPROVED')}
+                            className="w-10 h-10 rounded-lg border border-border flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-colors hover:border-emerald-500 disabled:opacity-50"
+                          >
+                            {updatingId === d.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-5 h-5"/>}
+                          </button>
+                          <button 
+                            disabled={updatingId !== null}
+                            onClick={() => handleUpdateStatus(d.id, 'CANCELLED')}
+                            className="w-10 h-10 rounded-lg border border-border flex items-center justify-center hover:bg-destructive hover:text-white transition-colors hover:border-destructive disabled:opacity-50"
+                          >
+                            {updatingId === d.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-5 h-5"/>}
+                          </button>
+                       </div>
+                    )}
                 </div>
              </div>
           ))}

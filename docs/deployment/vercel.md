@@ -2,6 +2,17 @@
 
 This document outlines the requirements and deployment instructions to publish the Next.js frontend of the Blood Bank Intelligence SaaS to Vercel.
 
+## Critical Project Setting: Root Directory
+
+> [!IMPORTANT]
+> Because this repository uses a structured layout where the Next.js codebase is located inside the `frontend` directory, you **must** specify the Root Directory in Vercel.
+>
+> 1. In the **Vercel Dashboard**, go to your project's **Settings** > **General**.
+> 2. Locate the **Root Directory** field and set it to `frontend`.
+> 3. Click **Save** and trigger a redeployment.
+>
+> Failing to set this will cause the Vercel build to fail with `ENOENT: no such file or directory, open '/vercel/path0/package.json'` since it will look for a `package.json` file in the root workspace folder rather than the `frontend` folder.
+
 ## Environment Variables
 
 To ensure the frontend successfully communicates with the production Node.js backend, configure the following environment variables in your Vercel Project Settings:

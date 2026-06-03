@@ -124,6 +124,7 @@ model Patient {
   bloodRequests     BloodRequest[]
   priorityCases     PriorityCase[]
 
+  @@index([hospitalId])
   @@map("patients")
 }
 
@@ -139,6 +140,7 @@ model MedicalReport {
   extractedParameters ExtractedParameter[]
   aiResults          AIResult[]
 
+  @@index([patientId])
   @@map("medical_reports")
 }
 
@@ -181,6 +183,7 @@ model BloodRequest {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
+  @@index([patientId])
   @@index([urgencyChannel])
   @@index([priorityScore])
   @@map("blood_requests")
@@ -196,6 +199,7 @@ model Inventory {
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
+  @@index([bloodBankId])
   @@index([bloodGroup])
   @@index([expiryDate])
   @@map("inventory")
@@ -209,6 +213,7 @@ model PriorityCase {
   reasoning String   @db.Text
   createdAt DateTime @default(now())
 
+  @@index([patientId])
   @@map("priority_cases")
 }
 
@@ -235,6 +240,7 @@ model AuditLog {
   details   Json?
   createdAt DateTime @default(now())
 
+  @@index([userId])
   @@map("audit_logs")
 }
 

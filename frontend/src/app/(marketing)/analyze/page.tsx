@@ -83,7 +83,7 @@ export default function AnalyzePage() {
              const ocrController = new AbortController();
              const ocrTimeout = setTimeout(() => ocrController.abort(), 20000); // 20s wait max for OCR
              
-             const ocrRes = await fetch(`${apiUrl}/ai/ocr-service`, {
+             const ocrResJson = await fetch(`${apiUrl}/ai/ocr-service`, {
                  method: "POST",
                  body: ocrForm,
                  signal: ocrController.signal
@@ -92,6 +92,7 @@ export default function AnalyzePage() {
                  return r.json();
              });
              clearTimeout(ocrTimeout);
+             const ocrRes = ocrResJson.status === "success" ? ocrResJson.data : ocrResJson;
              
              setOcrData(ocrRes);
              setAnalyzeStep(2);
@@ -100,7 +101,7 @@ export default function AnalyzePage() {
              const mlController = new AbortController();
              const mlTimeout = setTimeout(() => mlController.abort(), 15000);
              
-             const mlRes = await fetch(`${apiUrl}/ai/final-engine`, {
+             const mlResJson = await fetch(`${apiUrl}/ai/final-engine`, {
                  method: "POST",
                  headers: { "Content-Type": "application/json" },
                  body: JSON.stringify(ocrRes),
@@ -110,6 +111,7 @@ export default function AnalyzePage() {
                  return r.json();
              });
              clearTimeout(mlTimeout);
+             const mlRes = mlResJson.status === "success" ? mlResJson.data : mlResJson;
              
              setResult(mlRes);
              setAnalyzeStep(3);
@@ -172,7 +174,7 @@ export default function AnalyzePage() {
              const mlController = new AbortController();
              const mlTimeout = setTimeout(() => mlController.abort(), 15000);
              
-             const mlRes = await fetch(`${apiUrl}/ai/final-engine`, {
+             const mlResJson = await fetch(`${apiUrl}/ai/final-engine`, {
                  method: "POST",
                  headers: { "Content-Type": "application/json" },
                  body: JSON.stringify(parsedData),
@@ -182,6 +184,7 @@ export default function AnalyzePage() {
                  return r.json();
              });
              clearTimeout(mlTimeout);
+             const mlRes = mlResJson.status === "success" ? mlResJson.data : mlResJson;
              
              setResult(mlRes);
              setAnalyzeStep(3);
