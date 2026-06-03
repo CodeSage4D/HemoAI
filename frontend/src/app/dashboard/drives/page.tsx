@@ -11,15 +11,15 @@ const drives = [
 
 export default function DrivesPage() {
   return (
-    <div className="h-full flex flex-col space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="h-full flex flex-col space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2"><HeartHandshake className="w-6 h-6 text-primary" /> Community Donation Drives</h2>
-          <p className="text-muted-foreground text-sm max-w-3xl mt-2">
+          <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2"><HeartHandshake className="w-5 h-5 sm:w-6 sm:h-6 text-primary" /> Community Donation Drives</h2>
+          <p className="text-muted-foreground text-sm max-w-3xl mt-1.5">
             Manage regional blood drives and trigger AI-generated Smart Notifications to local high-probability donors.
           </p>
         </div>
-        <button className="px-6 py-3 bg-primary text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center gap-2">
+        <button className="self-start sm:self-auto px-4 sm:px-6 py-3 bg-primary text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center gap-2 text-sm">
            <Megaphone className="w-5 h-5"/> New Campaign
         </button>
       </div>

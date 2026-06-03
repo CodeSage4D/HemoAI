@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { AlertCircle, MapPin, Phone, Car, Navigation, ShieldAlert, HeartPulse, Hospital } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 export default function PublicSOSPage() {
   const [gpsLoading, setGpsLoading] = useState(true);
@@ -35,11 +36,9 @@ export default function PublicSOSPage() {
       <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-destructive/20 to-background z-0 pointer-events-none" />
 
       {/* Top Nav */}
-      <header className="relative z-10 flex items-center justify-between px-6 lg:px-12 py-4 border-b border-border bg-background/50 backdrop-blur-md">
-        <Link href="/" className="flex items-center gap-2">
-          <img src="/RAKTAVA-Logo-Witout-Background.png" alt="RAKTAVA" className="h-9 w-auto object-contain dark:brightness-110" />
-        </Link>
-        <Link href="/login" className="text-sm font-bold bg-primary text-primary-foreground px-4 py-2 rounded-lg">
+      <header className="relative z-10 flex items-center justify-between px-4 sm:px-6 lg:px-12 py-3 sm:py-4 border-b border-border bg-background/50 backdrop-blur-md">
+        <Logo iconSize={28} />
+        <Link href="/login" className="text-sm font-bold bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">
            Patient Login
         </Link>
       </header>

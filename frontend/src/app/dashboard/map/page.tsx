@@ -12,23 +12,23 @@ const DynamicClientMap = dynamic(() => import("./DynamicMap"), {
 
 export default function LiveRadarPage() {
   return (
-    <div className="h-full flex flex-col space-y-6">
-      <div className="flex items-center justify-between shrink-0">
+    <div className="h-full flex flex-col space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shrink-0">
         <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2"><MapPin className="w-6 h-6 text-primary" /> Live Inventory Radar</h2>
+          <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2"><MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-primary" /> Live Inventory Radar</h2>
           <p className="text-muted-foreground text-sm">Real-time geospatial tracking of institutional blood reserves and trauma centers.</p>
         </div>
-        <div className="flex gap-4">
-           <button className="px-4 py-2 bg-muted text-foreground text-sm font-medium rounded-xl hover:bg-muted/80 transition-colors flex items-center gap-2">
+        <div className="flex gap-2 sm:gap-4">
+           <button className="px-3 sm:px-4 py-2 bg-muted text-foreground text-sm font-medium rounded-xl hover:bg-muted/80 transition-colors flex items-center gap-2">
              <Navigation className="w-4 h-4" /> Recenter
            </button>
-           <button className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-xl hover:bg-primary/90 transition-colors shadow-sm shadow-primary/20 flex items-center gap-2">
+           <button className="px-3 sm:px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-xl hover:bg-primary/90 transition-colors shadow-sm shadow-primary/20 flex items-center gap-2">
              <Truck className="w-4 h-4" /> Dispatch Drone
            </button>
         </div>
       </div>
 
-      <div className="flex-1 min-h-[500px]">
+      <div className="flex-1 min-h-[40vh] sm:min-h-[50vh] md:min-h-[500px]">
          <DynamicClientMap />
       </div>
 

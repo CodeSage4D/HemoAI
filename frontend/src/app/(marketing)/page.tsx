@@ -74,14 +74,14 @@ export default function HomeLandingPage() {
                <div className="w-2 h-2 rounded-full bg-primary animate-pulse" /> RAKTAVA V5.2 Live
             </motion.div>
             
-            <h1 className="text-5xl md:text-7xl lg:text-[6.5rem] font-black tracking-tighter mb-6 leading-[1.05] text-foreground transition-colors duration-300">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-[6rem] font-black tracking-tighter mb-6 leading-[1.05] text-foreground transition-colors duration-300">
               The Engine for <br className="hidden md:block"/> 
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-500 to-emerald-400 inline-block drop-shadow-sm min-h-[1.2rem]">
                  {displayText}<span className="animate-pulse border-r-[6px] border-primary ml-1 h-[0.8em] inline-block -translate-y-2"></span>
               </span>
             </h1>
             
-            <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl leading-relaxed mx-auto font-medium transition-colors duration-300">
+            <p className="text-base md:text-xl text-muted-foreground mb-10 max-w-2xl leading-relaxed mx-auto font-medium transition-colors duration-300">
               Automated biological parsing and deep-learning logistics routers. Bypass the cloud entirely using extreme low-latency PyTorch networks deployed securely on-site.
             </p>
 
@@ -128,12 +128,12 @@ export default function HomeLandingPage() {
           </div>
           
           {/* Aesthetic Bento Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-min">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-6 auto-rows-min">
              
              {/* Main Wide Card */}
              <BentoCard 
                href="/analyze"
-               colSpan="md:col-span-2"
+               colSpan="col-span-full sm:col-span-2 md:col-span-2"
                icon={<Zap className="w-6 h-6 text-yellow-500" />} 
                title="Byte-Level Mathematical OCR" 
                desc="Leverages exact document coordinate maps to strip Hb arrays directly from PDF streams, bypassing standard un-reliable visual hallucination models entirely." 
@@ -143,7 +143,7 @@ export default function HomeLandingPage() {
              {/* Square Card */}
              <BentoCard 
                href="/dashboard/map"
-               colSpan="md:col-span-1"
+               colSpan="col-span-full sm:col-span-1 md:col-span-1"
                icon={<Users className="w-6 h-6 text-primary" />} 
                title="Routing Analytics" 
                desc="Predictive WMA load-balancing across Madhya Pradesh trauma centers." 
@@ -153,7 +153,7 @@ export default function HomeLandingPage() {
              {/* Square Card */}
              <BentoCard 
                href="/analyze"
-               colSpan="md:col-span-1"
+               colSpan="col-span-full sm:col-span-1 md:col-span-1"
                icon={<ShieldCheck className="w-6 h-6 text-emerald-500" />} 
                title="Physical Override" 
                desc="Strict clinical parameter thresholds (Hb, Plt) enforced via server middleware." 
@@ -163,7 +163,7 @@ export default function HomeLandingPage() {
              {/* Main Wide Card */}
              <BentoCard 
                href="/dashboard/inventory"
-               colSpan="md:col-span-2"
+               colSpan="col-span-full sm:col-span-2 md:col-span-2"
                icon={<Database className="w-6 h-6 text-purple-500" />} 
                title="Distributed SQL Network" 
                desc="Multi-node PostgreSQL architecture seamlessly locking active dispatch requests to physical blood inventory, removing race conditions across hospital branches." 

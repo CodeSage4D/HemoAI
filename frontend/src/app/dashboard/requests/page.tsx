@@ -19,6 +19,19 @@ interface RequestItem {
   };
 }
 
+const urgencyColors = {
+  RED: { bg: "bg-destructive/10", text: "text-destructive", border: "border-destructive/30", icon: "text-destructive" },
+  YELLOW: { bg: "bg-yellow-500/10", text: "text-yellow-600", border: "border-yellow-500/30", icon: "text-yellow-500" },
+  GREEN: { bg: "bg-emerald-500/10", text: "text-emerald-600", border: "border-emerald-500/30", icon: "text-emerald-500" },
+};
+
+const statusBadge = (status: string) => {
+  if (status === "PENDING") return "bg-yellow-500/20 text-yellow-600";
+  if (status === "APPROVED") return "bg-emerald-500/20 text-emerald-600";
+  if (status === "CANCELLED") return "bg-destructive/20 text-destructive";
+  return "bg-muted text-muted-foreground";
+};
+
 export default function RequestsPage() {
   const { user } = useAuth();
   const isHospital = user?.role === "HOSPITAL" || user?.role === "ADMIN";
@@ -55,29 +68,31 @@ export default function RequestsPage() {
     }
   };
 
-  useEffect(() => {
-    fetchRequests();
-  }, []);
+  useEffect(() => { fetchRequests(); }, []);
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
-         <div>
-            <h1 className="text-3xl font-bold mb-1 flex items-center gap-2">
-              <ActivitySquare className="w-8 h-8 text-primary" /> 
-              {isHospital ? "System Requisitions" : "My Blood Requests"}
-            </h1>
-            <p className="text-muted-foreground text-sm">
-               {isHospital ? "Logistical routing requests broadcasted across local network." : "Track the status of your current or historical blood requests."}
-            </p>
-         </div>
-         <button 
-           onClick={fetchRequests}
-           disabled={loading}
-           className="px-4 py-2 border border-border bg-card font-medium rounded-xl flex items-center gap-2 text-sm shadow-sm hover:bg-muted transition-colors disabled:opacity-50"
-         >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin"/> : <RefreshCw className="w-4 h-4"/>} Sync Live
-         </button>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-1 flex items-center gap-2">
+            <ActivitySquare className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
+            {isHospital ? "System Requisitions" : "My Blood Requests"}
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            {isHospital
+              ? "Logistical routing requests broadcasted across local network."
+              : "Track the status of your current or historical blood requests."}
+          </p>
+        </div>
+        <button
+          onClick={fetchRequests}
+          disabled={loading}
+          className="self-start sm:self-auto px-4 py-2 border border-border bg-card font-medium rounded-xl flex items-center gap-2 text-sm shadow-sm hover:bg-muted transition-colors disabled:opacity-50"
+        >
+          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+          Sync Live
+        </button>
       </div>
 
       {error && (
@@ -104,58 +119,90 @@ export default function RequestsPage() {
       )}
 
       {!loading && requests.length > 0 && (
-        <div className="grid gap-4 mt-4">
-          {requests.map((d) => (
-             <div key={d.id} className="p-6 bg-card border border-border rounded-2xl shadow-sm flex items-center justify-between gap-6 hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-4">
-                   <div className={`p-4 rounded-xl ${d.urgencyChannel === 'RED' ? 'bg-destructive/10 text-destructive' : d.urgencyChannel === 'YELLOW' ? 'bg-yellow-500/10 text-yellow-500' : 'bg-emerald-500/10 text-emerald-500'}`}>
-                      <ActivitySquare className="w-6 h-6" />
-                   </div>
-                   <div>
-                      <h3 className="font-bold text-lg">REQ-{d.id.substring(0, 8).toUpperCase()}</h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Patient: <span className="font-medium text-foreground">{d.patient?.name || "Unknown"}</span> | 
-                        Group: <span className="font-medium text-foreground">{d.patient?.bloodGroup || "Unknown"}</span> | 
-                        Required: <span className="font-medium text-primary">{d.unitsRequired} Units</span>
-                      </p>
-                   </div>
+        <div className="grid gap-4">
+          {requests.map((d) => {
+            const colors = urgencyColors[d.urgencyChannel] || urgencyColors.GREEN;
+            return (
+              <div
+                key={d.id}
+                className="bg-card border border-border rounded-2xl shadow-sm hover:shadow-md transition-shadow p-4 sm:p-5"
+              >
+                {/* Top row: urgency icon + req ID + status badge */}
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`p-2.5 sm:p-3 rounded-xl shrink-0 ${colors.bg}`}>
+                      <ActivitySquare className={`w-5 h-5 ${colors.icon}`} />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-bold text-base sm:text-lg leading-tight truncate">
+                        REQ-{d.id.substring(0, 8).toUpperCase()}
+                      </h3>
+                      <div className={`text-xs font-bold uppercase tracking-wider mt-0.5 ${colors.text}`}>
+                        {d.urgencyChannel} PRIORITY
+                      </div>
+                    </div>
+                  </div>
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shrink-0 ${statusBadge(d.status)}`}
+                  >
+                    {d.status}
+                  </span>
                 </div>
-                <div className="flex items-center gap-4">
-                   <span className="text-xs font-bold px-3 py-1 bg-muted border border-border rounded-lg">
-                     Score: {d.priorityScore.toFixed(1)}
-                   </span>
-                    <span className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${
-                      d.status === 'PENDING' ? 'bg-yellow-500/20 text-yellow-500' :
-                      d.status === 'APPROVED' ? 'bg-emerald-500/20 text-emerald-500' :
-                      d.status === 'CANCELLED' ? 'bg-destructive/20 text-destructive' :
-                      'bg-muted text-muted-foreground'
-                    }`}>
-                       {d.status}
-                    </span>
-                    {isHospital && d.status === 'PENDING' && (
-                       <div className="flex gap-2">
-                          <button 
-                            disabled={updatingId !== null}
-                            onClick={() => handleUpdateStatus(d.id, 'APPROVED')}
-                            className="w-10 h-10 rounded-lg border border-border flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-colors hover:border-emerald-500 disabled:opacity-50"
-                          >
-                            {updatingId === d.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-5 h-5"/>}
-                          </button>
-                          <button 
-                            disabled={updatingId !== null}
-                            onClick={() => handleUpdateStatus(d.id, 'CANCELLED')}
-                            className="w-10 h-10 rounded-lg border border-border flex items-center justify-center hover:bg-destructive hover:text-white transition-colors hover:border-destructive disabled:opacity-50"
-                          >
-                            {updatingId === d.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-5 h-5"/>}
-                          </button>
-                       </div>
-                    )}
+
+                {/* Detail grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+                  <div className="bg-muted/40 rounded-lg p-2.5">
+                    <div className="text-[10px] uppercase font-bold text-muted-foreground mb-0.5">Patient</div>
+                    <div className="font-semibold text-xs sm:text-sm truncate">{d.patient?.name || "Unknown"}</div>
+                  </div>
+                  <div className="bg-muted/40 rounded-lg p-2.5">
+                    <div className="text-[10px] uppercase font-bold text-muted-foreground mb-0.5">Blood Group</div>
+                    <div className="font-semibold text-xs sm:text-sm">{d.patient?.bloodGroup || "—"}</div>
+                  </div>
+                  <div className="bg-muted/40 rounded-lg p-2.5">
+                    <div className="text-[10px] uppercase font-bold text-muted-foreground mb-0.5">Units</div>
+                    <div className="font-bold text-primary text-xs sm:text-sm">{d.unitsRequired} Units</div>
+                  </div>
+                  <div className="bg-muted/40 rounded-lg p-2.5">
+                    <div className="text-[10px] uppercase font-bold text-muted-foreground mb-0.5">Risk Score</div>
+                    <div className={`font-black text-xs sm:text-sm ${colors.text}`}>{d.priorityScore.toFixed(1)}</div>
+                  </div>
                 </div>
-             </div>
-          ))}
+
+                {/* Hospital action buttons */}
+                {isHospital && d.status === "PENDING" && (
+                  <div className="flex gap-3 pt-2 border-t border-border/50">
+                    <button
+                      disabled={updatingId !== null}
+                      onClick={() => handleUpdateStatus(d.id, "APPROVED")}
+                      className="flex-1 h-11 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 font-bold text-sm hover:bg-emerald-500 hover:text-white transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      {updatingId === d.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Check className="w-4 h-4" />
+                      )}
+                      Approve
+                    </button>
+                    <button
+                      disabled={updatingId !== null}
+                      onClick={() => handleUpdateStatus(d.id, "CANCELLED")}
+                      className="flex-1 h-11 rounded-xl border border-destructive/30 bg-destructive/10 text-destructive font-bold text-sm hover:bg-destructive hover:text-white transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      {updatingId === d.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <X className="w-4 h-4" />
+                      )}
+                      Cancel
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
-

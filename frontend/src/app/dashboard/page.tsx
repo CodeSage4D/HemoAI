@@ -81,22 +81,22 @@ function HospitalDashboard() {
   }
 
   return (
-    <div className="flex flex-col gap-6 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-5 sm:gap-6 animate-in fade-in duration-500">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
          <div>
-            <h1 className="text-3xl font-bold mb-1">Command Overview</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-1">Command Overview</h1>
             <p className="text-muted-foreground text-sm">Central intelligence for regional RAKTAVA blood logistics and real-time patient triage.</p>
          </div>
          {(stats?.criticalPatientsAlert ?? 0) > 0 && (
-           <div className="flex bg-destructive/10 border border-destructive/20 text-destructive text-sm font-bold px-4 py-2 rounded-lg items-center gap-2 animate-pulse">
-              <AlertCircle className="w-5 h-5"/> EMERGENCY SHORTAGE ALERT ACTIVE
+           <div className="flex bg-destructive/10 border border-destructive/20 text-destructive text-xs sm:text-sm font-bold px-3 sm:px-4 py-2 rounded-lg items-center gap-2 animate-pulse self-start sm:self-auto">
+              <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 shrink-0"/> EMERGENCY SHORTAGE ALERT
            </div>
          )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard title="Total Inventory Units" value={stats?.bloodAvailabilityStats || "0"} icon={<Droplet className="w-5 h-5" />} desc="Locally tracked" />
-        <StatCard title="Overall AI Accuracy" value="98.4%" icon={<CheckCircle2 className="w-5 h-5" />} desc="Scikit-Learn Confidence" />
+        <StatCard title="AI Accuracy" value="98.4%" icon={<CheckCircle2 className="w-5 h-5" />} desc="Scikit-Learn Confidence" />
         <StatCard title="Critical Patients" value={stats?.criticalPatientsAlert?.toString() || "0"} icon={<AlertTriangle className="w-5 h-5 text-destructive" />} desc="Requires immediate dispatch" />
         <StatCard title="Active Requests" value={reqs.length.toString()} icon={<ActivitySquare className="w-5 h-5 text-emerald-500" />} desc="Total pool size" />
       </div>
@@ -166,10 +166,10 @@ function PatientDashboard() {
   const { user } = useAuth();
   
   return (
-    <div className="flex flex-col gap-6 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-5 sm:gap-6 animate-in fade-in duration-500">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
          <div>
-            <h1 className="text-3xl font-bold mb-1">Welcome, {user?.full_name || "Patient"}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-1">Welcome, {user?.full_name?.split(' ')[0] || "Patient"}</h1>
             <p className="text-muted-foreground text-sm">Your personal health hub. Track your blood requests, medical extractions, and donation eligibility.</p>
          </div>
       </div>
@@ -196,7 +196,7 @@ function PatientDashboard() {
       </div>
 
       {/* Patient Specific Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-2">
         
         <div className="bg-gradient-to-br from-primary/20 to-transparent border border-primary/20 p-6 rounded-2xl relative overflow-hidden flex flex-col justify-between shadow-sm">
            <div className="flex items-center justify-between mb-4 relative z-10">
@@ -273,12 +273,10 @@ function StatCard({ title, value, icon, desc }: StatCardProps) {
   return (
     <div className="p-4 bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between mb-2">
-        <div className="text-sm font-medium text-muted-foreground">{title}</div>
-        <div className="p-2 bg-muted rounded-lg">{icon}</div>
+        <div className="text-xs sm:text-sm font-medium text-muted-foreground leading-tight">{title}</div>
+        <div className="p-1.5 sm:p-2 bg-muted rounded-lg shrink-0">{icon}</div>
       </div>
-      <div className="text-3xl font-bold flex items-baseline gap-2">
-         {value}
-      </div>
+      <div className="text-2xl sm:text-3xl font-bold">{value}</div>
       <div className="text-xs text-muted-foreground mt-1 font-medium">{desc}</div>
     </div>
   )

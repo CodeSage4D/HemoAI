@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { HeartPulse, ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import { Logo } from "@/components/Logo";
 import { authApi } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 
@@ -33,16 +34,16 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex text-foreground bg-background">
+    <div className="min-h-screen flex flex-col lg:flex-row text-foreground bg-background">
       {/* Left Form Section */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center p-8 md:p-16 relative">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-6 py-12 sm:px-10 md:px-16 lg:py-0 relative">
         <Link href="/" className="absolute top-8 left-8 flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="w-4 h-4" /> Back to Home
         </Link>
         
         <div className="max-w-md w-full mx-auto">
           <div className="flex justify-center lg:justify-start mb-8">
-            <img src="/RAKTAVA-Logo-Witout-Background.png" alt="RAKTAVA" className="h-12 w-auto object-contain dark:brightness-110" />
+            <Logo iconSize={40} />
           </div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h1 className="text-3xl font-bold mb-2">Welcome Back</h1>
@@ -82,7 +83,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right Image/Graphic Section */}
-      <div className="hidden lg:flex w-1/2 bg-muted p-12 items-center justify-center relative overflow-hidden">
+      <div className="hidden lg:flex w-1/2 bg-muted p-10 xl:p-12 items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-emerald-500/20 mix-blend-multiply dark:mix-blend-screen" />
         
         <motion.div 
