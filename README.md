@@ -1,92 +1,113 @@
 <div align="center">
 
-# RAKTAVA AI-Powered Blood Intelligence Platform
-**Transforming Blood Intelligence Into Life-Saving Decisions**
+<img src="frontend/public/RAKTAVA-Logo-Witout-Background.png" alt="RAKTAVA Logo" width="500" />
 
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-[![Express](https://img.shields.io/badge/Express-Node-333333?style=for-the-badge&logo=express)](https://expressjs.com/)
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react)](https://react.dev/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-DB-4169E1?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)
+### **AI-Powered Blood Intelligence & Patient Support Platform**
+*Transforming Clinical Telemetry and Logistics Into Life-Saving Decisions.*
 
-RAKTAVA is an intelligent blood management and patient support platform that leverages AI, clinical rules, and healthcare analytics to improve blood availability, patient prioritization, and medical decision support.
+[![Next.js](https://img.shields.io/badge/Next.js-16--Turbopack-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![Express](https://img.shields.io/badge/Express-TypeScript-333333?style=for-the-badge&logo=express)](https://expressjs.com/)
+[![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon_Cloud-4169E1?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)
 
-[Core Features](#-features) •
-[Architecture](#-architecture) •
-[Getting Started](#-getting-started) •
-[Documentation](#-api-documentation)
+[Features](#-key-features) •
+[Architecture](#-system-architecture) •
+[Installation](#-local-installation) •
+[Security & Compliance](#-security--encryption) •
+[Production Hardening](#-production-candidate-pc-1)
 
 </div>
 
 ---
 
-## ✨ Features
+## 🌟 Key Features
 
-- **🧠 Patient Triage AI:** Predicts absolute trauma priority scores using Scikit-Learn logic analyzing Hemoglobin levels and specific Disease States instantly.
-- **📊 Real-time Demand Forecasting:** Interactive area charts (`Recharts`) demonstrating predictive blood shortage timelines days before they occur.
-- **🔐 Multi-Role Architecture:** Fully separated portal routes supporting B2B Hospitals alongside B2C Patient tracking utilizing strict Express JWT implementations.
-- **⚡ Surgical UI/UX:** Built with Tailwind CSS & Framer Motion atop Next.js resulting in ultra-fast, animated, fluid navigational states supporting Dark & Light Modes natively.
-
----
-
-## 🏗 Architecture
-
-RAKTAVA is structured as a powerful decoupled Monorepo.
-
-> ✅ **Frontend (Client):** Next.js 16 App Router, seamlessly rendering B2B marketing channels, animated Dashboards, and Interactive AI Chatbots simultaneously.  
-> ✅ **Backend (API + ML Engine):** Express.js & TypeScript handling JWT Auth validation, heavy predictive algorithmic sorting, and rapid database queries.  
-> ✅ **Database:** Prisma + PostgreSQL database ensuring safe execution and GCM AES-256 field-level encryption for PII/PHI fields.
+*   **🧠 RAKTAVA Medical Intelligence Engine:** Real-time upload and parameter extraction (Hemoglobin, RBC, WBC, Platelets) from clinical blood panel PDFs/Images.
+*   **📊 AI Demand Forecast Curve:** Integrated interactive analytics (`Recharts`) modeling local supply and forecasting O- / A+ demand surges.
+*   **🚨 Override Emergency SOS:** Location-aware paramedic dispatch override engine and instant hospital trauma routing.
+*   **🔐 Row-Level Cryptography:** Application-side `AES-256-GCM` encryption protecting patient PHI and demographic data in PostgreSQL databases.
+-   **📈 Modular Dashboard Panel:** Fully decoupled switches serving B2B Hospital Command views alongside B2C Patient Eligibility views.
 
 ---
 
-## 🚀 Getting Started
+## 🏗 System Architecture
 
-To run the full infrastructure suite locally on your machine, both the Frontend and Backend servers must be booted in separate terminal windows.
+```text
+RAKTAVA (Root Workspace)
+├── backend/                       # Express Node.js & REST API Gateway
+│   ├── prisma/                    # Relational Database Models & Seeding Scripts
+│   ├── src/
+│   │   ├── config/                # Environment variables and DB connectors
+│   │   ├── middlewares/           # HttpOnly Session Auth & Magic Byte File Verification
+│   │   ├── modules/               # Domain modules (auth, requests, analytics, health)
+│   │   └── utils/                 # Symmetric AES-256-GCM helpers
+│   └── tsconfig.json              # TypeScript compilation overrides
+│
+├── frontend/                      # Next.js 16 Client App (Turbopack)
+│   ├── public/                    # Global RAKTAVA brand assets & logos
+│   └── src/
+│       ├── app/                   # App Router structure (marketing & dashboard pages)
+│       ├── components/            # Navbars, footers, charts, and RAKTAVA AI Bot
+│       └── lib/                   # API HTTP client wrapper
+│
+└── docs/                          # Architecture blueprints & operational manuals
+    ├── security_audit_report.md   # HIPAA & IEEE verification matrix
+    └── user_manual.md             # Systems operational guides
+```
 
-### Prerequisites
-- [Node.js (v18+)](https://nodejs.org/)
-- [PostgreSQL](https://www.postgresql.org/)
+---
 
-### 1. Initialize API Backend (Terminal 1)
+## 🚀 Local Installation
+
+Follow these steps to initialize RAKTAVA for demo, MVP presentation, or development testing:
+
+### 1. Database & Secrets Setup
+Create a `.env` file inside `backend/` and configure your credentials:
+```env
+DATABASE_URL="postgresql://neondb_owner:YOUR_KEY@ep-pooler.us-east-1.neon.tech/neondb?sslmode=require"
+JWT_SECRET="your-production-secret-token"
+ENCRYPTION_KEY="your-32-char-aes-encryption-key"
+```
+
+### 2. Start the Backend API Server
 ```bash
 cd backend
 npm install
+npx prisma db push      # Sync schemas to PostgreSQL
+npm run seed            # Populate standard logs, triage metrics, and hospitals
 npm run dev
 ```
-> The API will now stream locally on `http://localhost:8000`.
+*The REST API Gateway starts on `http://localhost:8000`.*
 
-### 2. Initialize SaaS Interface (Terminal 2)
+### 3. Start the Next.js Frontend App
 ```bash
-cd frontend
+cd ../frontend
 npm install
 npm run dev
 ```
-> The Platform is now broadcasting at `http://localhost:3000`.
+*The RAKTAVA web application broadcasts on `http://localhost:3000`.*
 
 ---
 
-## 📁 Repository Structure
+## 🛡️ Security & Encryption
 
-```graphql
-RAKTAVA/
-├── backend/                       # Express Node.js & REST API Core
-│   ├── src/
-│   │   ├── modules/               # Domain-driven backend modules
-│   │   ├── utils/                 # Encryption & telemetry helpers
-│   │   └── index.ts               # Server Entrypoint
-│   └── prisma/                    # Prisma DB schema & migration configs
-│
-└── frontend/                      # Next.js Application
-    ├── public/                    # Static UI Assets & Logos
-    └── src/
-        ├── app/
-        │   ├── (auth)/            # Split-Screen JWT Login/Signup 
-        │   ├── (marketing)/       # B2B Patient/Hospital Overviews
-        │   └── dashboard/         # Core Interactive Analytics Pane
-        └── components/            # Global Navbars, Footers, and AiBots
+RAKTAVA is built in strict adherence to **HIPAA** and **IEEE 29147** vulnerability standards:
+1.  **Field-Level PHI Protection:** Patient names, email ids, and conditions are encrypted before write transactions in PostgreSQL.
+2.  **HttpOnly JWT Session Storage:** Authentication keys are stored strictly inside secure, loopback cookies to neutralize Cross-Site Scripting (XSS).
+3.  **Upload File Sanity Checker:** Analyzes binary file headers (magic bytes) during multipart ingestion to prevent executable script injection.
+
+---
+
+## 🏆 Production Candidate (PC-1)
+
+The system has been promoted to **PC-1** status, compiling with **100% success** on Next.js 16 (Turbopack) environments. 
+
+For deployment to Vercel, the configuration handles redirection via `vercel.json` routing rules:
+```json
+{
+  "buildCommand": "NODE_ENV=production npm run build --prefix frontend",
+  "installCommand": "npm install --prefix frontend",
+  "outputDirectory": "frontend/.next"
+}
 ```
-
----
-
-<div align="center">
-<i>Surgically constructed for healthcare scalability.</i>
-</div>
+*(Forces production React compilation paths to bypass non-standard environment errors during page data optimization).*

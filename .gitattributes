@@ -1,20 +1,24 @@
-# Handle line endings automatically
+# Set default behavior to automatically handle line endings
 * text=auto eol=lf
 
-# Explicitly declare text files
-*.js text eol=lf
-*.jsx text eol=lf
+# Force LF line endings for all text-based files
 *.ts text eol=lf
 *.tsx text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.json text eol=lf
 *.css text eol=lf
 *.html text eol=lf
 *.md text eol=lf
-*.json text eol=lf
 *.py text eol=lf
+*.prisma text eol=lf
+*.sh text eol=lf
 
-# Explictly declare binary files
+# Declare binary formats to prevent git encoding corruption
 *.png binary
 *.jpg binary
 *.jpeg binary
 *.gif binary
 *.ico binary
+*.webp binary
+*.pdf binary
