@@ -7,9 +7,9 @@ export default function ContactPage() {
   return (
     <div className="py-24 px-6 max-w-7xl mx-auto min-h-screen grid lg:grid-cols-2 gap-16">
       <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-        <h1 className="text-4xl md:text-5xl font-bold mb-6">Let's Connect.</h1>
+        <h1 className="text-4xl md:text-5xl font-bold mb-6">Let&apos;s Connect.</h1>
         <p className="text-lg text-muted-foreground mb-12 max-w-md">
-          Whether you're an institutional hospital looking for an integration package, or a donor wanting to help, we're here.
+          Whether you&apos;re an institutional hospital looking for an integration package, or a donor wanting to help, we&apos;re here.
         </p>
         
         <div className="space-y-8 mb-12">

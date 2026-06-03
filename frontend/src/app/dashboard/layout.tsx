@@ -1,7 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { 
   LayoutDashboard, 
-  Users, 
   Droplet, 
   ActivitySquare, 
   Settings,

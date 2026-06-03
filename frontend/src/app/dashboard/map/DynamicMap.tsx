@@ -3,7 +3,6 @@
 import { MapContainer, TileLayer, Marker, Popup, CircleMarker } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { useEffect } from "react";
 
 // Fix for default marker icons in React Leaflet
 const icon = L.icon({

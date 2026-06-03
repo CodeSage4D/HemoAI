@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { ShieldCheck, HeartPulse, ActivitySquare } from "lucide-react";
-import Image from "next/image";
 
 export default function AboutPage() {
   return (
@@ -33,7 +32,7 @@ export default function AboutPage() {
         <div className="p-16 text-center">
             <h2 className="text-3xl font-bold mb-4">Our Vision for 2030</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto italic">
-              "We envision a decade where no patient is ever turned away due to a logistical shortage of blood products. Hemo-Sync will bridge the gap between availability and instantaneous hospital delivery across the entire continent."
+              &quot;We envision a decade where no patient is ever turned away due to a logistical shortage of blood products. Hemo-Sync will bridge the gap between availability and instantaneous hospital delivery across the entire continent.&quot;
             </p>
         </div>
       </motion.div>
@@ -41,7 +40,7 @@ export default function AboutPage() {
   );
 }
 
-function AboutFeature({ icon, title, desc }: any) {
+function AboutFeature({ icon, title, desc }: { icon: React.ReactNode, title: string, desc: string }) {
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}

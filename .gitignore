@@ -27,12 +27,23 @@ node_modules/
 .next/
 out/
 build/
+dist/
+backend/dist/
 .npm/
 
 # OS Files
 .DS_Store
 Thumbs.db
 
+
+
 # IDEs
 .vscode/
 .idea/
+
+# Reports and temporary files
+frontend/eslint_report*.txt
+temp_git.ps1
+backend/credentials.txt
+backend/logs/
+backend/test_data/

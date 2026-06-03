@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { Droplet, AlertTriangle, CheckCircle2, Search, ActivitySquare, AlertCircle, Calendar, Heart, FileText, ArrowRight } from "lucide-react";
+import { Droplet, AlertTriangle, CheckCircle2, Search, ActivitySquare, AlertCircle, Calendar, Heart, FileText, ArrowRight, ShieldAlert } from "lucide-react";
 import { metricsApi } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
@@ -17,9 +17,27 @@ export default function DashboardSwitcher() {
   return <PatientDashboard />;
 }
 
+interface TriageRequest {
+  id: string;
+  patientId: string;
+  status: string;
+  priorityScore: number;
+  urgencyChannel: "RED" | "GREEN" | "YELLOW";
+  patient?: {
+    name: string;
+    bloodGroup: string;
+  };
+}
+
+interface DashboardStats {
+  criticalPatientsAlert: number;
+  bloodAvailabilityStats: string;
+  demandForecastingTrend: { day: string; demand: number }[];
+}
+
 function HospitalDashboard() {
-  const [stats, setStats] = useState<any>(null);
-  const [reqs, setReqs] = useState<any[]>([]);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [reqs, setReqs] = useState<TriageRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -69,7 +87,7 @@ function HospitalDashboard() {
             <h1 className="text-3xl font-bold mb-1">Command Overview</h1>
             <p className="text-muted-foreground text-sm">Central intelligence for regional blood bank logistics and real-time patient triage.</p>
          </div>
-         {stats?.criticalPatientsAlert > 0 && (
+         {(stats?.criticalPatientsAlert ?? 0) > 0 && (
            <div className="flex bg-destructive/10 border border-destructive/20 text-destructive text-sm font-bold px-4 py-2 rounded-lg items-center gap-2 animate-pulse">
               <AlertCircle className="w-5 h-5"/> EMERGENCY SHORTAGE ALERT ACTIVE
            </div>
@@ -79,7 +97,7 @@ function HospitalDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <StatCard title="Total Inventory Units" value={stats?.bloodAvailabilityStats || "0"} icon={<Droplet className="w-5 h-5" />} desc="Locally tracked" />
         <StatCard title="Overall AI Accuracy" value="98.4%" icon={<CheckCircle2 className="w-5 h-5" />} desc="Scikit-Learn Confidence" />
-        <StatCard title="Critical Patients" value={stats?.criticalPatientsAlert || "0"} icon={<AlertTriangle className="w-5 h-5 text-destructive" />} desc="Requires immediate dispatch" />
+        <StatCard title="Critical Patients" value={stats?.criticalPatientsAlert?.toString() || "0"} icon={<AlertTriangle className="w-5 h-5 text-destructive" />} desc="Requires immediate dispatch" />
         <StatCard title="Active Requests" value={reqs.length.toString()} icon={<ActivitySquare className="w-5 h-5 text-emerald-500" />} desc="Total pool size" />
       </div>
 
@@ -124,12 +142,12 @@ function HospitalDashboard() {
                reqs.map((req) => (
                   <TriageCard 
                     key={req.id}
-                    patient={`PT-ID-${req.patient_id}`} 
+                    patient={req.patient?.name || `PT-ID-${req.patientId.substring(0, 8)}`} 
                     diagnosis={req.status} 
-                    hl={req.priority_score.toFixed(1)} 
-                    bg={req.urgency_channel === "RED" ? "bg-destructive/10" : req.urgency_channel === "GREEN" ? "bg-emerald-500/10" : "bg-yellow-500/10"} 
-                    text={req.urgency_channel === "RED" ? "text-destructive" : req.urgency_channel === "GREEN" ? "text-emerald-500" : "text-yellow-500"} 
-                    bd={req.urgency_channel === "RED" ? "border-destructive/20" : req.urgency_channel === "GREEN" ? "border-emerald-500/20" : "border-yellow-500/20"} 
+                    hl={req.priorityScore.toFixed(1)} 
+                    bg={req.urgencyChannel === "RED" ? "bg-destructive/10" : req.urgencyChannel === "GREEN" ? "bg-emerald-500/10" : "bg-yellow-500/10"} 
+                    text={req.urgencyChannel === "RED" ? "text-destructive" : req.urgencyChannel === "GREEN" ? "text-emerald-500" : "text-yellow-500"} 
+                    bd={req.urgencyChannel === "RED" ? "border-destructive/20" : req.urgencyChannel === "GREEN" ? "border-emerald-500/20" : "border-yellow-500/20"} 
                   />
                ))
              )}
@@ -154,6 +172,27 @@ function PatientDashboard() {
             <h1 className="text-3xl font-bold mb-1">Welcome, {user?.full_name || "Patient"}</h1>
             <p className="text-muted-foreground text-sm">Your personal health hub. Track your blood requests, medical extractions, and donation eligibility.</p>
          </div>
+      </div>
+
+      {/* Heavy Priority - SOS Box */}
+      <div className="bg-destructive/10 border border-destructive/20 shadow-sm rounded-2xl p-6 mt-2 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
+         <div className="flex items-center gap-4 z-10 w-full relative">
+            <div className="w-16 h-16 rounded-full bg-destructive/20 flex items-center justify-center shrink-0">
+               <ShieldAlert className="w-8 h-8 text-destructive animate-pulse" />
+            </div>
+            <div>
+               <h3 className="text-xl font-black text-destructive tracking-widest uppercase mb-1">Emergency SOS Hub</h3>
+               <p className="text-sm font-medium text-foreground opacity-90 max-w-lg">
+                 Instant trauma routing to Regional Hospital Hubs with live paramedic dispatch tracking.
+               </p>
+            </div>
+         </div>
+         <Link href="/dashboard/sos" className="shrink-0 w-full md:w-auto px-8 py-4 bg-destructive text-destructive-foreground font-black tracking-widest text-lg rounded-xl shadow-xl shadow-destructive/20 hover:bg-destructive/90 transition-all flex items-center justify-center z-10 border border-destructive hover:border-white/50">
+            OPEN SOS SYSTEM
+         </Link>
+         
+         {/* Decorative red pulse backend */}
+         <div className="absolute top-0 right-0 w-96 h-96 bg-destructive blur-[100px] opacity-10 rounded-full animate-pulse pointer-events-none" />
       </div>
 
       {/* Patient Specific Stats */}
@@ -223,7 +262,14 @@ function PatientDashboard() {
   )
 }
 
-function StatCard({ title, value, icon, desc }: any) {
+interface StatCardProps {
+  title: string;
+  value: string;
+  icon: React.ReactNode;
+  desc: string;
+}
+
+function StatCard({ title, value, icon, desc }: StatCardProps) {
   return (
     <div className="p-4 bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between mb-2">
@@ -238,7 +284,16 @@ function StatCard({ title, value, icon, desc }: any) {
   )
 }
 
-function TriageCard({ patient, diagnosis, hl, bg, text, bd }: any) {
+interface TriageCardProps {
+  patient: string;
+  diagnosis: string;
+  hl: string;
+  bg: string;
+  text: string;
+  bd: string;
+}
+
+function TriageCard({ patient, diagnosis, hl, bg, text, bd }: TriageCardProps) {
   return (
      <div className={`p-4 rounded-xl border ${bd} ${bg} flex items-center justify-between`}>
         <div>

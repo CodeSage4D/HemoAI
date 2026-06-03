@@ -40,10 +40,13 @@ class MultiModelHybridEngine:
         wbc = data.get("wbc", 0.0)
         platelets = data.get("platelets", 0.0)
         mcv = data.get("mcv", 0.0)
+        hct = data.get("hct", 0.0)
         
         # LFT & KFT
         alt = data.get("alt", 0.0)
+        ast = data.get("ast", 0.0)
         creatinine = data.get("creatinine", 0.0)
+        bilirubin = data.get("bilirubin", 0.0)
         
         # Diabetes
         hba1c = data.get("hba1c", 0.0)
@@ -51,6 +54,8 @@ class MultiModelHybridEngine:
         
         # Lipids
         cholesterol = data.get("cholesterol", 0.0)
+        ldl = data.get("ldl", 0.0)
+        triglycerides = data.get("triglycerides", 0.0)
         
         # Thyroid & Vit
         tsh = data.get("tsh", 0.0)
@@ -58,7 +63,6 @@ class MultiModelHybridEngine:
         vit_b12 = data.get("vit_b12", 0.0)
 
         # Step 1: Validate Telemetry
-        # If absolutely nothing was extracted across all panels...
         if all(v == 0.0 for v in [hb, rbc, wbc, alt, creatinine, hba1c, cholesterol, tsh, vit_d]):
             return {
                 "status": "REVIEW_REQUIRED",
@@ -70,127 +74,144 @@ class MultiModelHybridEngine:
                 "recommendation": "Consult clinical staff manually."
             }
 
+        insights = []
         conditions = []
         status = "NORMAL"
         channel = "NONE"
         risk_penalty = 0
         is_normal = True
 
-        # === 1. BLOOD DISORDERS (CBC) ===
+        # === 1. SYNERGISTIC BLOOD ANALYSIS (CBC) ===
         if hb > 0:
             if hb < 7.0:
                 conditions.append("Severe Anemia")
+                insights.append("Critical hemoglobin levels detected. Suggests immediate clinical intervention.")
                 status = "ABNORMAL"
                 channel = "RED"
                 risk_penalty += 80
                 is_normal = False
             elif 7.0 <= hb < 11.5:
-                conditions.append("Mild Anemia")
+                # Correlate with MCV for smarter diagnosis
+                if mcv > 0:
+                    if mcv < 80.0:
+                        conditions.append("Microcytic Anemia")
+                        insights.append("Low Hb with low MCV suggests Iron Deficiency or Thalassemia.")
+                    elif mcv > 100.0:
+                        conditions.append("Macrocytic Anemia")
+                        insights.append("Low Hb with high MCV suggests Vit B12 or Folate deficiency.")
+                    else:
+                        conditions.append("Normocytic Anemia")
+                        insights.append("Low Hb with normal MCV may indicate chronic disease or acute blood loss.")
+                else:
+                    conditions.append("Mild Anemia")
+                
                 status = "BORDERLINE"
                 if channel != "RED": channel = "YELLOW"
                 risk_penalty += 40
                 is_normal = False
-                # Thalassemia check
-                if rbc > 5.0 and mcv > 0 and mcv < 80.0:
-                    conditions.append("Possible Thalassemia Trait")
-                    channel = "GREEN" # Chronic Tracking
-        
+
         if wbc > 0:
             if wbc > 11.0:
-                conditions.append("Leukocytosis (Possible Infection)")
+                conditions.append("Leukocytosis")
+                insights.append("Elevated white cell count indicates active systemic inflammation or infection.")
                 status = "ABNORMAL"
                 if channel == "NONE": channel = "YELLOW"
                 risk_penalty += 30
                 is_normal = False
             elif wbc < 4.0:
                 conditions.append("Leukopenia")
+                insights.append("Low white cell count indicates possible bone marrow supression or viral fatigue.")
                 status = "BORDERLINE"
                 is_normal = False
                 
-        if platelets > 0 and platelets < 150.0:
-            conditions.append("Thrombocytopenia (Low Platelets)")
+        if platelets > 0:
+            if platelets < 150.0:
+                conditions.append("Thrombocytopenia")
+                insights.append("Low platelet count increases risk of spontaneous bleeding.")
+                status = "ABNORMAL"
+                risk_penalty += 40
+                is_normal = False
+            elif platelets > 450.0:
+                conditions.append("Thrombocytosis")
+                insights.append("High platelet count increases risk of clotting/thrombosis.")
+                is_normal = False
+
+        # === 2. METABOLIC SYNERGY (Diabetes & Lipids) ===
+        if hba1c >= 6.5 or glucose > 125.0:
+            conditions.append("Diabetes Mellitus Type II")
+            insights.append("Sustained high glycemic markers confirm uncontrolled diabetic state.")
             status = "ABNORMAL"
-            risk_penalty += 40
+            if channel != "RED": channel = "YELLOW"
+            risk_penalty += 45
+            is_normal = False
+        elif 5.7 <= hba1c < 6.5 or 100 < glucose <= 125.0:
+            conditions.append("Pre-Diabetes")
+            insights.append("Glucose metabolism is impaired; lifestyle changes recommended to prevent onset.")
+            if status == "NORMAL": status = "BORDERLINE"
             is_normal = False
 
-        # === 2. ORGAN DYSFUNCTION (LFT / KFT) ===
-        if alt > 45.0:
-            conditions.append("Elevated Liver Enzymes (ALT)")
+        if cholesterol > 240.0 or ldl > 160.0:
+            conditions.append("Severe Hyperlipidemia")
+            insights.append("High LDL and Total Cholesterol indicate elevated cardiovascular risk.")
+            if status == "NORMAL": status = "BORDERLINE"
+            is_normal = False
+        elif 200.0 < cholesterol <= 240.0:
+            conditions.append("Mild Hypercholesterolemia")
+            is_normal = False
+
+        # === 3. ORGAN INTEGRITY (Liver & Kidney) ===
+        if alt > 45.0 or ast > 40.0:
+            conditions.append("Hepatic Stress")
+            insights.append("Elevated liver enzymes suggest potential hepatocyte injury or inflammation.")
             status = "ABNORMAL"
             if channel == "NONE": channel = "YELLOW"
-            risk_penalty += 25
+            risk_penalty += 30
             is_normal = False
             
-        if creatinine > 1.2:
-            conditions.append("Possible Kidney Impairment (High Creatinine)")
+        if creatinine > 1.3:
+            conditions.append("Renal Impairment")
+            insights.append("Elevated creatinine/urea suggests reduced glomerular filtration rate.")
             status = "ABNORMAL"
             if channel != "RED": channel = "YELLOW"
             risk_penalty += 50
             is_normal = False
 
-        # === 3. METABOLIC / DIABETES ===
-        if hba1c > 0:
-            if hba1c >= 6.5:
-                conditions.append("Diabetic Range (HbA1c)")
-                status = "ABNORMAL"
-                is_normal = False
-            elif 5.7 <= hba1c < 6.5:
-                conditions.append("Pre-Diabetes (HbA1c)")
-                if status == "NORMAL": status = "BORDERLINE"
-                is_normal = False
-                
-        if glucose > 125.0 and hba1c == 0:
-            conditions.append("Hyperglycemia (High Glucose)")
-            status = "BORDERLINE"
+        # === 4. NUTRITIONAL & HORMONAL ===
+        if tsh > 4.5:
+            conditions.append("Hypothyroidism")
+            insights.append("High TSH suggests underactive thyroid function (energy/metabolism).")
             is_normal = False
-            
-        # === 4. LIPIDS ===
-        if cholesterol > 200.0:
-            conditions.append("Hypercholesterolemia (High Cholesterol)")
-            if status == "NORMAL": status = "BORDERLINE"
+        elif tsh < 0.4 and tsh > 0:
+            conditions.append("Hyperthyroidism")
+            insights.append("Low TSH suggests overactive thyroid function.")
             is_normal = False
 
-        # === 5. HORMONAL / THYROID ===
-        if tsh > 0:
-            if tsh > 4.5:
-                conditions.append("Hypothyroidism")
-                status = "ABNORMAL"
-                is_normal = False
-            elif tsh < 0.4:
-                conditions.append("Hyperthyroidism")
-                status = "ABNORMAL"
-                is_normal = False
-
-        # === 6. NUTRITIONAL ===
         if vit_d > 0 and vit_d < 20.0:
-            conditions.append("Vitamin D Deficiency")
-            if status == "NORMAL": status = "BORDERLINE"
-            is_normal = False
-        if vit_b12 > 0 and vit_b12 < 200.0:
-            conditions.append("Vitamin B12 Deficiency")
-            if status == "NORMAL": status = "BORDERLINE"
+            conditions.append("Severe Vit-D Deficiency")
+            insights.append("Critically low Vitamin D; skeletal and immune health compromised.")
             is_normal = False
 
-        # === CONCLUSION ===
+        # === BOT AI SYNTHESIS ===
         if is_normal:
-            conditions.append("No abnormalities detected")
             return {
                 "status": "NORMAL",
-                "conditions": conditions,
+                "conditions": ["Optimal Health Baseline"],
                 "risk_score": 2.0,
-                "confidence": 0.95,
+                "confidence": 0.98,
                 "channel": "NONE",
-                "reason": "All extracted physical telemetry panels (CBC, LFT, KFT, Metabolic) reside within absolute survival and clinical normal range parameters.",
-                "recommendation": "Maintain healthy lifestyle. Standard discharge."
+                "reason": "Bot AI Analysis: All extracted physical telemetry panels (CBC, LFT, KFT, Metabolic) reside within absolute survival and clinical normal range parameters.",
+                "recommendation": "Everything looks perfect. Maintain your current diet and exercise routine. Standard checkup in 6 months."
             }
 
-        # Secondary NLP Validation (Zero-Shot) limits False Positives
+        # Secondary NLP Validation
         context_classes = ["chronic blood disorder", "organ failure", "metabolic syndrome", "infection", "vitamin deficiency"]
         context_res = self.diagnostic_nlp(sequences=raw_ocr_text[:500] if len(raw_ocr_text) > 0 else "missing", candidate_labels=context_classes)
         primary_context = context_res["labels"][0]
         nlp_confidence = context_res["scores"][0]
 
-        reason_explanation = f"AI strictly adhered to physical bounds mapping {len(conditions)} conditions. Secondary NLP matched context '{primary_context}'."
+        # Generate a "Smart" Reason
+        analysis_summary = " ".join(insights[:3])
+        bot_reason = f"Bot AI Synthesis: Based on {len(conditions)} identified markers, the primary clinical concern is '{primary_context}'. {analysis_summary}"
 
         final_risk = min(99.9, float(risk_penalty))
         
@@ -200,8 +221,8 @@ class MultiModelHybridEngine:
             "risk_score": round(final_risk, 1),
             "confidence": round(float(nlp_confidence), 2),
             "channel": channel,
-            "reason": reason_explanation,
-            "recommendation": f"Monitor detected parameters carefully. Expedite clinical mapping to {channel if channel != 'NONE' else 'Standard'} channel."
+            "reason": bot_reason,
+            "recommendation": f"Priority Alert: Focus on {primary_context}. See a specialist regarding {', '.join(conditions[:2])} if symptoms persist."
         }
 
 

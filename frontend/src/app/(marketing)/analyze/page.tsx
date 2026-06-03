@@ -5,12 +5,55 @@ import { ActivitySquare, UploadCloud, Bot, AlertTriangle, CheckCircle2, UserCirc
 import { useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
+interface OcrData {
+  hb: number;
+  rbc: number;
+  wbc: number;
+  platelets: number;
+  mcv: number;
+  hct: number;
+  mch: number;
+  mchc: number;
+  rdw: number;
+  alt: number;
+  ast: number;
+  bilirubin: number;
+  albumin: number;
+  creatinine: number;
+  urea: number;
+  bun: number;
+  cholesterol: number;
+  hdl: number;
+  ldl: number;
+  triglycerides: number;
+  t3: number;
+  t4: number;
+  tsh: number;
+  glucose: number;
+  hba1c: number;
+  vit_b12: number;
+  vit_d: number;
+  patient_name?: string;
+  patient_age?: string;
+}
+
+interface AnalysisResult {
+  status: string;
+  conditions: string[] | string;
+  risk_score: number;
+  confidence: number;
+  channel: string;
+  reason: string;
+  recommendation: string;
+}
+
 export default function AnalyzePage() {
   const [entryMode, setEntryMode] = useState<'upload' | 'manual'>('upload');
-  const [file, setFile] = useState<File | null>(null);
   const [analyzeStep, setAnalyzeStep] = useState(0); 
-  const [result, setResult] = useState<any>(null);
-  const [ocrData, setOcrData] = useState<any>(null);
+  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [ocrData, setOcrData] = useState<OcrData | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+
   
   const [manual, setManual] = useState({ 
     patient_name: "John Doe", patient_age: "45", context: "",
@@ -70,11 +113,13 @@ export default function AnalyzePage() {
              
              setResult(mlRes);
              setAnalyzeStep(3);
-          } catch(err: any) {
+          } catch(err: unknown) {
              console.error("Pipeline failure:", err);
              let errorMsg = String(err);
-             if (err.name === 'AbortError' || errorMsg.includes('Failed to fetch')) {
-                 errorMsg = "Network connection failed. The AI backend is currently unavailable.";
+             if (err instanceof Error) {
+                 if (err.name === 'AbortError' || err.message.includes('Failed to fetch')) {
+                     errorMsg = "Network connection failed. The AI backend is currently unavailable.";
+                 }
              }
              setResult({ status: "REVIEW_REQUIRED", conditions: ["System Error"], risk_score: 99.9, confidence: 0.0, channel: "RED", reason: errorMsg, recommendation: "Please verify backend server status." });
              setAnalyzeStep(3);
@@ -140,19 +185,21 @@ export default function AnalyzePage() {
              
              setResult(mlRes);
              setAnalyzeStep(3);
-      } catch(err: any) {
+      } catch(err: unknown) {
              console.error("Manual Entry Pipeline failure:", err);
              let errorMsg = String(err);
-             if (err.name === 'AbortError' || errorMsg.includes('Failed to fetch')) {
-                 errorMsg = "Network connection failed. The AI backend is currently unavailable.";
+             if (err instanceof Error) {
+                 if (err.name === 'AbortError' || err.message.includes('Failed to fetch')) {
+                     errorMsg = "Network connection failed. The AI backend is currently unavailable.";
+                 }
              }
              setResult({ status: "REVIEW_REQUIRED", conditions: ["API Error"], risk_score: 99.9, confidence: 0.0, channel: "RED", reason: errorMsg, recommendation: "Manual Mode Network failure. Verify backend server status." });
              setAnalyzeStep(3);
       }
   };
 
-  const getVisualStatus = (val: number, range: [number, number]) => {
-     if (val === 0) return "bg-muted/50 text-muted-foreground border-border";
+  const getVisualStatus = (val: number | undefined, range: [number, number]) => {
+     if (!val || val === 0) return "bg-muted/50 text-muted-foreground border-border";
      if (val < range[0] || val > range[1]) return "bg-destructive/10 text-destructive border-destructive/20";
      return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
   }
@@ -267,6 +314,7 @@ export default function AnalyzePage() {
                 {analyzeStep < 3 && analyzeStep > 0 && (
                      <div className="w-full bg-card rounded-2xl p-6 text-center py-32">
                          <div className={`font-bold flex items-center justify-center gap-2 mb-6 ${analyzeStep === 1 ? 'text-blue-500' : 'text-primary'}`}><ActivitySquare className="w-8 h-8 animate-spin" /> {analyzeStep === 1 ? 'Mapping 30+ potential extraction points...' : 'Evaluating PyTorch Limits...'}</div>
+                         {file && <div className="text-xs text-muted-foreground mb-4 font-mono">Analyzing: {file.name}</div>}
                          <div className="w-full max-w-md mx-auto bg-muted rounded-full h-3 mb-4 overflow-hidden">
                             <div className={`bg-primary h-3 rounded-full transition-all duration-500 ${analyzeStep === 1 ? 'w-1/3' : 'w-2/3'}`} />
                          </div>
@@ -283,9 +331,13 @@ export default function AnalyzePage() {
                                   {result.status} {result.status === "NORMAL" ? <CheckCircle2 className="w-6 h-6"/> : <AlertTriangle className="w-6 h-6" />}
                                </div>
                                <div className="text-sm font-bold opacity-90 leading-relaxed flex flex-wrap gap-2">
-                                 {result.conditions?.map((c: string, i: number) => (
-                                    <span key={i} className="px-3 py-1 bg-background/50 rounded-lg border border-border shadow-sm">{c}</span>
-                                 )) || <span className="px-3 py-1 bg-background/50 rounded-lg border border-border shadow-sm">{result.conditions}</span>}
+                                 {Array.isArray(result.conditions) ? (
+                                    result.conditions.map((c: string, i: number) => (
+                                       <span key={i} className="px-3 py-1 bg-background/50 rounded-lg border border-border shadow-sm">{c}</span>
+                                    ))
+                                 ) : (
+                                    <span className="px-3 py-1 bg-background/50 rounded-lg border border-border shadow-sm">{result.conditions}</span>
+                                 )}
                                </div>
                            </div>
                            <div className="text-right flex flex-col md:items-end w-full md:w-auto mt-4 md:mt-0 p-4 border md:border-0 rounded-xl bg-background/30">
@@ -363,27 +415,27 @@ export default function AnalyzePage() {
 
                             {/* Values Column (Dynamic Priority Cards) */}
                             <div className="flex flex-col gap-3">
-                               {ocrData?.platelets > 0 && (
+                               {(ocrData?.platelets ?? 0) > 0 && (
                                    <div className={`p-4 border rounded-xl flex items-center justify-between shadow-sm ${getVisualStatus(ocrData?.platelets, [150, 450])}`}>
                                       <div><div className="text-[10px] uppercase font-bold tracking-wider opacity-80 mb-1">Platelets</div><div className="font-black text-xl">{ocrData?.platelets}</div></div>
                                    </div>
                                )}
-                               {ocrData?.hba1c > 0 && (
+                               {(ocrData?.hba1c ?? 0) > 0 && (
                                    <div className={`p-4 border rounded-xl flex items-center justify-between shadow-sm ${getVisualStatus(ocrData?.hba1c, [4.0, 5.7])}`}>
                                       <div><div className="text-[10px] uppercase font-bold tracking-wider opacity-80 mb-1">HbA1c Diabeteics</div><div className="font-black text-xl">{ocrData?.hba1c} <span className="text-xs font-normal">%</span></div></div>
                                    </div>
                                )}
-                               {ocrData?.cholesterol > 0 && (
+                               {(ocrData?.cholesterol ?? 0) > 0 && (
                                    <div className={`p-4 border rounded-xl flex items-center justify-between shadow-sm ${getVisualStatus(ocrData?.cholesterol, [0, 200])}`}>
                                       <div><div className="text-[10px] uppercase font-bold tracking-wider opacity-80 mb-1">Tot. Cholesterol</div><div className="font-black text-xl">{ocrData?.cholesterol}</div></div>
                                    </div>
                                )}
-                               {ocrData?.alt > 0 && (
+                               {(ocrData?.alt ?? 0) > 0 && (
                                    <div className={`p-4 border rounded-xl flex items-center justify-between shadow-sm ${getVisualStatus(ocrData?.alt, [0, 45])}`}>
                                       <div><div className="text-[10px] uppercase font-bold tracking-wider opacity-80 mb-1">Liver (ALT)</div><div className="font-black text-xl">{ocrData?.alt}</div></div>
                                    </div>
                                )}
-                               {ocrData?.tsh > 0 && (
+                               {(ocrData?.tsh ?? 0) > 0 && (
                                    <div className={`p-4 border rounded-xl flex items-center justify-between shadow-sm ${getVisualStatus(ocrData?.tsh, [0.4, 4.5])}`}>
                                       <div><div className="text-[10px] uppercase font-bold tracking-wider opacity-80 mb-1">Thyroid (TSH)</div><div className="font-black text-xl">{ocrData?.tsh}</div></div>
                                    </div>

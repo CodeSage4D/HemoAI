@@ -26,8 +26,12 @@ export default function LoginPage() {
       });
       const data = await authApi.login(body);
       login(data.access_token);
-    } catch (err: any) {
-      setError(err.message || "Failed to login. Check credentials.");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+         setError(err.message || "Failed to login. Check credentials.");
+      } else {
+         setError("Failed to login. Check credentials.");
+      }
       setLoading(false);
     }
   };
@@ -75,7 +79,7 @@ export default function LoginPage() {
             </form>
 
             <p className="text-center text-sm text-muted-foreground mt-8">
-              Don't have an account? <Link href="/signup" className="text-primary font-medium hover:underline">Request Access</Link>
+              Don&apos;t have an account? <Link href="/signup" className="text-primary font-medium hover:underline">Request Access</Link>
             </p>
           </motion.div>
         </div>

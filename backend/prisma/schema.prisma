@@ -1,0 +1,249 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  HOSPITAL
+  BLOOD_BANK
+  PATIENT
+}
+
+enum BloodGroup {
+  A_POS  @map("A+")
+  A_NEG  @map("A-")
+  B_POS  @map("B+")
+  B_NEG  @map("B-")
+  O_POS  @map("O+")
+  O_NEG  @map("O-")
+  AB_POS @map("AB+")
+  AB_NEG @map("AB-")
+}
+
+enum UrgencyChannel {
+  GREEN
+  YELLOW
+  RED
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  DISPATCHED
+  FULFILLED
+  CANCELLED
+}
+
+enum ReportStatus {
+  PROCESSING
+  NORMAL
+  BORDERLINE
+  ABNORMAL
+  CRITICAL
+  REVIEW_REQUIRED
+}
+
+model User {
+  id           String      @id @default(uuid())
+  email        String      @unique
+  passwordHash String
+  fullName     String
+  role         Role        @default(PATIENT)
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  hospital     Hospital?
+  bloodBank    BloodBank?
+  donor        Donor?
+  notifications Notification[]
+  auditLogs    AuditLog[]
+
+  @@map("users")
+}
+
+model Hospital {
+  id          String      @id @default(uuid())
+  userId      String      @unique
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  licenseNo   String      @unique
+  locationLat Float
+  locationLng Float
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  patients    Patient[]
+
+  @@map("hospitals")
+}
+
+model BloodBank {
+  id          String      @id @default(uuid())
+  userId      String      @unique
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  locationLat Float
+  locationLng Float
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  inventories Inventory[]
+
+  @@map("blood_banks")
+}
+
+model Donor {
+  id               String      @id @default(uuid())
+  userId           String      @unique
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bloodGroup       BloodGroup
+  lastDonationDate DateTime?
+  locationLat      Float
+  locationLng      Float
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@map("donors")
+}
+
+model Patient {
+  id                String          @id @default(uuid())
+  hospitalId        String
+  hospital          Hospital        @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  name              String
+  age               Int
+  gender            String
+  bloodGroup        BloodGroup
+  chronicConditions String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  medicalReports    MedicalReport[]
+  bloodRequests     BloodRequest[]
+  priorityCases     PriorityCase[]
+
+  @@map("patients")
+}
+
+model MedicalReport {
+  id                 String               @id @default(uuid())
+  patientId          String
+  patient            Patient              @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  recordDate         DateTime             @default(now())
+  rawText            String?              @db.Text
+  status             ReportStatus         @default(PROCESSING)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  extractedParameters ExtractedParameter[]
+  aiResults          AIResult[]
+
+  @@map("medical_reports")
+}
+
+model ExtractedParameter {
+  id            String        @id @default(uuid())
+  reportId      String
+  report        MedicalReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  parameterName String
+  value         Float
+  unit          String
+  status        ReportStatus
+  createdAt     DateTime      @default(now())
+
+  @@index([reportId])
+  @@map("extracted_parameters")
+}
+
+model AIResult {
+  id            String        @id @default(uuid())
+  reportId      String
+  report        MedicalReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  engineVersion String
+  rawResponse   Json
+  confidence    Float
+  reasoning     String        @db.Text
+  createdAt     DateTime      @default(now())
+
+  @@index([reportId])
+  @@map("ai_results")
+}
+
+model BloodRequest {
+  id             String         @id @default(uuid())
+  patientId      String
+  patient        Patient        @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  unitsRequired  Int
+  urgencyChannel UrgencyChannel
+  priorityScore  Float
+  status         RequestStatus  @default(PENDING)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([urgencyChannel])
+  @@index([priorityScore])
+  @@map("blood_requests")
+}
+
+model Inventory {
+  id          String     @id @default(uuid())
+  bloodBankId String
+  bloodBank   BloodBank  @relation(fields: [bloodBankId], references: [id], onDelete: Cascade)
+  bloodGroup  BloodGroup
+  units       Int        @default(0)
+  expiryDate  DateTime
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([bloodGroup])
+  @@index([expiryDate])
+  @@map("inventory")
+}
+
+model PriorityCase {
+  id        String   @id @default(uuid())
+  patientId String
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  status    String
+  reasoning String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@map("priority_cases")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message   String
+  type      String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  ipAddress String?
+  userAgent String?
+  details   Json?
+  createdAt DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+model SystemLog {
+  id        String   @id @default(uuid())
+  level     String
+  message   String   @db.Text
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@map("system_logs")
+}

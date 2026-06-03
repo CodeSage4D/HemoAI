@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { AlertCircle, MapPin, Phone, Car, Navigation, ShieldAlert, HeartPulse, Hospital } from "lucide-react";
-import { motion } from "framer-motion";
 
 export default function PublicSOSPage() {
   const [gpsLoading, setGpsLoading] = useState(true);
@@ -129,7 +128,7 @@ export default function PublicSOSPage() {
   );
 }
 
-function ActivitySquareIcon(props: any) {
+function ActivitySquareIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}

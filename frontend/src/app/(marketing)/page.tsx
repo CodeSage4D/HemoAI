@@ -1,170 +1,175 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, ActivitySquare, ShieldCheck, Zap, Database, HeartPulse, Droplet, Plus, Stethoscope, Users, Microscope } from "lucide-react";
+import { ArrowRight, ShieldCheck, Zap, Database, Users, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
-// Creative Background floating icons matching UI request (Plus + Droplet Blood Patterns)
-const FloatingIcon = ({ icon: Icon, className, animateOpts }: any) => (
+interface FloatingOrbProps {
+  color: string;
+  size: string;
+  top: string;
+  left: string;
+  delay: number;
+}
+
+// Background floating elements for abstract Gen-AI tech feel
+const FloatingOrb = ({ color, size, top, left, delay }: FloatingOrbProps) => (
   <motion.div
-    className={`absolute opacity-[0.15] pointer-events-none drop-shadow-2xl ${className}`}
-    animate={animateOpts}
-    transition={{ duration: 15, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
-  >
-    <Icon className="w-16 h-16" />
-  </motion.div>
+    className={`absolute rounded-full blur-[100px] opacity-30 dark:opacity-20 pointer-events-none mix-blend-screen dark:mix-blend-plus-lighter`}
+    style={{ backgroundColor: color, width: size, height: size, top, left }}
+    animate={{ y: [0, 40, -40, 0], x: [0, -40, 40, 0], scale: [1, 1.1, 0.9, 1] }}
+    transition={{ duration: 15, repeat: Infinity, delay: delay, ease: "easeInOut" }}
+  />
 );
 
 export default function HomeLandingPage() {
-  
-  // Custom typing effect engine
   const [keywordIndex, setKeywordIndex] = useState(0);
-  const keywords = ["Clinical Intelligence.", "Diagnostic Triage.", "Medical Automation.", "Healthcare AI."];
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
+    const keywords = ["Clinical API", "Triage Logic", "Surgical AI", "Bio-Data"];
     let timeout: NodeJS.Timeout;
     const currentWord = keywords[keywordIndex];
+    
     if (isDeleting) {
-      setDisplayText((prev) => prev.slice(0, -1));
-      timeout = setTimeout(() => {}, 50); // Delete speed
-      if (displayText === "") {
-        setIsDeleting(false);
-        setKeywordIndex((prev) => (prev + 1) % keywords.length);
-      }
+      timeout = setTimeout(() => {
+        setDisplayText(currentWord.substring(0, displayText.length - 1));
+        if (displayText === "") {
+          setIsDeleting(false);
+          setKeywordIndex((prev) => (prev + 1) % keywords.length);
+        }
+      }, 40);
     } else {
-      setDisplayText(currentWord.slice(0, displayText.length + 1));
-      timeout = setTimeout(() => {}, 120); // Type speed
-      if (displayText === currentWord) {
-         timeout = setTimeout(() => setIsDeleting(true), 3000); // Wait on full word
-      }
+      timeout = setTimeout(() => {
+        setDisplayText(currentWord.substring(0, displayText.length + 1));
+        if (displayText === currentWord) {
+          setTimeout(() => setIsDeleting(true), 2500);
+        }
+      }, 80);
     }
     return () => clearTimeout(timeout);
-  }, [displayText, isDeleting, keywordIndex, keywords]);
+  }, [displayText, isDeleting, keywordIndex]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col font-sans transition-colors duration-300">
+      
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden px-6">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent dark:from-primary/10" />
+      <section className="relative pt-40 pb-20 md:pt-52 md:pb-32 px-6 overflow-hidden flex flex-col items-center justify-center min-h-[90vh]">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-background via-background to-muted/20 dark:to-background z-[-2]" />
         
-        {/* Floating Creative Medical Pattern */}
-        <FloatingIcon icon={Plus} className="top-24 left-[10%] text-rose-500" animateOpts={{y: [0, 40, 0], rotate: [0, 90, 0]}} />
-        <FloatingIcon icon={Droplet} className="bottom-[20%] right-[15%] text-red-500" animateOpts={{y: [0, -50, 0], scale: [1, 1.2, 1]}} />
-        <FloatingIcon icon={Plus} className="bottom-[10%] left-[20%] text-blue-500" animateOpts={{y: [0, -30, 0], rotate: [-45, 0, -45]}} />
-        <FloatingIcon icon={Droplet} className="top-[30%] right-[10%] text-rose-400" animateOpts={{y: [0, 50, 0], scale: [1, 1.1, 1]}} />
-        <FloatingIcon icon={ActivitySquare} className="top-[10%] right-[40%] text-emerald-500" animateOpts={{scale: [0.8, 1.1, 0.8], rotate: [0, 45, 0]}} />
+        {/* Dynamic Mesh Gradients */}
+        <div className="absolute inset-0 z-[-1] overflow-hidden">
+           <FloatingOrb color="#10b981" size="50vw" top="-10%" left="-10%" delay={0} /> {/* Emerald */}
+           <FloatingOrb color="#3b82f6" size="40vw" top="20%" left="60%" delay={2} /> {/* Blue */}
+           <FloatingOrb color="#f43f5e" size="30vw" top="60%" left="20%" delay={4} /> {/* Rose */}
+        </div>
 
-        <div className="max-w-7xl mx-auto flex flex-col items-center text-center relative z-10">
+        <div className="max-w-5xl mx-auto flex flex-col items-center text-center relative z-10 w-full">
             <motion.div 
-               initial={{ opacity: 0, scale: 0.9 }} 
-               animate={{ opacity: 1, scale: 1 }} 
-               transition={{ duration: 0.5 }}
-               className="mb-8 inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-primary/20 bg-primary/10 text-primary text-sm font-black tracking-widest uppercase shadow-sm backdrop-blur-md"
+               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+               className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs font-bold tracking-widest uppercase shadow-sm backdrop-blur-md"
             >
-               <HeartPulse className="w-5 h-5" /> V5.2 Hemo-AI Architecture Live
+               <div className="w-2 h-2 rounded-full bg-primary animate-pulse" /> Hemo-AI V5.2 Live
             </motion.div>
             
-            <h1 className="text-5xl md:text-[5.5rem] font-black tracking-tighter mb-8 leading-[1.1]">
-              The Global Standard in <br /> 
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-500 to-emerald-400 min-h-[1.2em] inline-block mt-4 drop-shadow-sm">
-                 {displayText}<span className="animate-pulse border-r-4 border-primary ml-1 h-[0.9em] inline-block -translate-y-1"></span>
+            <h1 className="text-5xl md:text-7xl lg:text-[6.5rem] font-black tracking-tighter mb-6 leading-[1.05] text-foreground transition-colors duration-300">
+              The Engine for <br className="hidden md:block"/> 
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-500 to-emerald-400 inline-block drop-shadow-sm min-h-[1.2rem]">
+                 {displayText}<span className="animate-pulse border-r-[6px] border-primary ml-1 h-[0.8em] inline-block -translate-y-2"></span>
               </span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-4xl leading-relaxed mx-auto font-medium">
-              We unify hospital blood banks and emergency dispatch centers using Offline PyTorch Deep Learning to execute automated, flawless patient triage directly from physical lab reports.
+            <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl leading-relaxed mx-auto font-medium transition-colors duration-300">
+              Automated biological parsing and deep-learning logistics routers. Bypass the cloud entirely using extreme low-latency PyTorch networks deployed securely on-site.
             </p>
 
-            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }} className="flex flex-col sm:flex-row items-center gap-6">
-                <Link href="/analyze" className="px-10 py-5 rounded-3xl bg-primary text-primary-foreground font-black text-lg hover:bg-primary/90 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/30 transition-all duration-300 flex items-center gap-3">
-                   Launch AI Analysis Core <ArrowRight className="w-6 h-6"/>
+            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }} className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
+                <Link href="/analyze" className="w-full sm:w-auto px-8 py-4 rounded-full bg-foreground text-background dark:bg-primary dark:text-primary-foreground font-black text-sm lg:text-base hover:scale-105 hover:shadow-2xl hover:shadow-foreground/20 dark:hover:shadow-primary/30 transition-all duration-300 flex items-center justify-center gap-2">
+                   Initialize AI Core <ArrowRight className="w-5 h-5"/>
                 </Link>
-                <Link href="#about" className="px-10 py-5 rounded-3xl bg-muted/80 backdrop-blur-md text-foreground font-bold hover:bg-muted border border-border shadow-sm hover:shadow-md transition-all duration-300 flex items-center gap-3">
-                   Discover Our Mission &darr;
+                <Link href="#services" className="w-full sm:w-auto px-8 py-4 rounded-full bg-card/60 backdrop-blur-md text-foreground font-bold text-sm lg:text-base border border-border shadow-sm hover:bg-card hover:shadow-md transition-all duration-300 flex items-center justify-center gap-2">
+                   View Documentation
                 </Link>
+            </motion.div>
+
+            {/* SLEEK SOS CARD (User requested Relocation & Size Reduction) */}
+            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mt-16 w-full max-w-md mx-auto">
+               <div className="bg-card/70 dark:bg-card/50 backdrop-blur-2xl border border-destructive/20 dark:border-destructive/30 rounded-3xl p-5 shadow-2xl shadow-destructive/10 flex items-center justify-between gap-4 group transition-colors duration-300">
+                  <div className="flex items-center gap-4 text-left">
+                     <div className="w-12 h-12 rounded-2xl bg-destructive/10 flex items-center justify-center shrink-0">
+                        <ShieldAlert className="w-6 h-6 text-destructive animate-pulse" />
+                     </div>
+                     <div>
+                        <h4 className="font-bold text-sm text-foreground mb-0.5">Emergency Subsystem</h4>
+                        <p className="text-[11px] text-muted-foreground font-medium leading-tight">Public geographical tracking and hyper-fast ambulance routing.</p>
+                     </div>
+                  </div>
+                  <Link href="/sos" className="shrink-0 w-10 h-10 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90 flex items-center justify-center transition-all group-hover:scale-110 shadow-lg shadow-destructive/30">
+                     <ArrowRight className="w-5 h-5" />
+                  </Link>
+               </div>
             </motion.div>
         </div>
       </section>
 
-      {/* About Section */}
-      <section id="about" className="py-24 px-6 relative bg-background border-t border-border overflow-hidden">
-         <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-bl from-primary/5 to-transparent pointer-events-none"></div>
-         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-center">
-            <div className="lg:w-1/2 relative z-10">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500/10 text-yellow-600 rounded-full font-black text-xs uppercase tracking-widest mb-6 border border-yellow-500/20">
-                   <ActivitySquare className="w-4 h-4"/> 100% Offline Integrity
-                </div>
-                <h2 className="text-4xl md:text-6xl font-extrabold mb-8 tracking-tight">Bridging the Gap Between Code and Biology.</h2>
-                <div className="space-y-6">
-                  <p className="text-xl text-muted-foreground leading-relaxed font-medium">
-                     Hemo-Sync was engineered to eliminate critical delays in clinical diagnostics. Rather than forcing medical staff to manually interpret complex strings of hematology parameters under extreme stress, our intelligence suite mathematically parses the data instantly.
-                  </p>
-                  <p className="text-xl text-muted-foreground leading-relaxed font-medium">
-                     By relying on static PyTorch Neural Weights entirely downloaded to your local server, all Patient HIPAA data remains strictly isolated. We never send your documents to the cloud. We do not guess. We diagnose based on absolute physiological limits.
-                  </p>
-                </div>
-            </div>
-            <div className="lg:w-1/2 grid grid-cols-2 gap-6 relative z-10">
-                 <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 to-emerald-500/30 blur-3xl opacity-30 block rounded-full pointer-events-none scale-150"></div>
-                 <div className="bg-card/90 backdrop-blur-xl p-8 rounded-[2rem] border border-white/10 shadow-2xl flex flex-col justify-center items-center h-56 translate-y-12 overflow-hidden relative group transition-all duration-500 hover:border-primary/50">
-                    <Droplet className="w-20 h-20 text-primary mb-4 opacity-50 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
-                    <div className="font-black text-4xl text-foreground">0ms</div>
-                    <div className="text-sm font-bold uppercase tracking-wider text-muted-foreground mt-1">Cloud Latency</div>
-                 </div>
-                 <div className="bg-card/90 backdrop-blur-xl p-8 rounded-[2rem] border border-white/10 shadow-2xl flex flex-col justify-center items-center h-56 group transition-all duration-500 hover:border-emerald-500/50 relative">
-                    <ShieldCheck className="w-20 h-20 text-emerald-500 mb-4 opacity-50 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
-                    <div className="font-black text-4xl text-foreground">100%</div>
-                    <div className="text-sm font-bold uppercase tracking-wider text-muted-foreground mt-1">Data Localization</div>
-                 </div>
-            </div>
-         </div>
-      </section>
-
-      {/* Services Section */}
-      <section id="services" className="py-32 px-6 bg-muted/20 border-t border-border">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-24">
-             <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 text-blue-600 rounded-full font-black text-xs uppercase tracking-widest mb-6 border border-blue-500/20">
-                   <Microscope className="w-4 h-4"/> Clinical Toolset
+      {/* Bento-Box Modern Services Architecture */}
+      <section id="services" className="py-32 px-6 relative z-10 bg-muted/30 dark:bg-background border-t border-border transition-colors duration-300">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-20 grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
+             <div>
+                <h2 className="text-4xl md:text-5xl font-black tracking-tight text-foreground transition-colors duration-300">Engineered for Scale.</h2>
+                <p className="text-muted-foreground text-lg mt-4 font-medium transition-colors duration-300">A completely decoupled, module-based healthcare API infrastructure. From PyMuPDF byte-layer analysis to Supabase-backed React interfaces.</p>
              </div>
-             <h2 className="text-5xl md:text-7xl font-black mb-8 tracking-tight">Enterprise Services.</h2>
-             <p className="text-2xl text-muted-foreground max-w-3xl mx-auto font-medium leading-relaxed">Unlocking massive diagnostic scale for connected hospitals through secure, physical logic validation loops.</p>
+             <div className="flex md:justify-end">
+                <Link href="#about" className="text-sm font-bold bg-background dark:bg-card border border-border px-6 py-3 rounded-full hover:bg-muted transition-colors flex items-center gap-2">Read Tech Spec <ArrowRight className="w-4 h-4"/></Link>
+             </div>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-             <FeatureCard 
-               icon={<Zap className="w-8 h-8 text-yellow-500" />} 
-               title="Byte-Level OCR" 
-               desc="Leverages PyMuPDF mathematical byte-extraction to strip text directly out of secure PDF clinical reports without graphical pixel hallucination." 
+          {/* Aesthetic Bento Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-min">
+             
+             {/* Main Wide Card */}
+             <BentoCard 
+               href="/analyze"
+               colSpan="md:col-span-2"
+               icon={<Zap className="w-6 h-6 text-yellow-500" />} 
+               title="Byte-Level Mathematical OCR" 
+               desc="Leverages exact document coordinate maps to strip Hb arrays directly from PDF streams, bypassing standard un-reliable visual hallucination models entirely." 
+               bgClasses="bg-gradient-to-br from-card to-card/50"
              />
-             <FeatureCard 
-               icon={<ShieldCheck className="w-8 h-8 text-emerald-500" />} 
+
+             {/* Square Card */}
+             <BentoCard 
+               href="/dashboard/map"
+               colSpan="md:col-span-1"
+               icon={<Users className="w-6 h-6 text-primary" />} 
+               title="Routing Analytics" 
+               desc="Predictive WMA load-balancing across Madhya Pradesh trauma centers." 
+               bgClasses="bg-card"
+             />
+
+             {/* Square Card */}
+             <BentoCard 
+               href="/analyze"
+               colSpan="md:col-span-1"
+               icon={<ShieldCheck className="w-6 h-6 text-emerald-500" />} 
                title="Physical Override" 
-               desc="Machine Learning is untrustworthy alone. We enforce strict biological/numeric boundaries (Hb, RBC) to prevent AI false positives in clinical care." 
+               desc="Strict clinical parameter thresholds (Hb, Plt) enforced via server middleware." 
+               bgClasses="bg-card"
              />
-             <FeatureCard 
-               icon={<Database className="w-8 h-8 text-primary" />} 
-               title="Decentralized Database" 
-               desc="Syncing hospital triage queues instantly with local blood bank inventories via Supabase PostgreSQL routers, ensuring perfect 0-second delivery." 
+
+             {/* Main Wide Card */}
+             <BentoCard 
+               href="/dashboard/inventory"
+               colSpan="md:col-span-2"
+               icon={<Database className="w-6 h-6 text-purple-500" />} 
+               title="Distributed SQL Network" 
+               desc="Multi-node PostgreSQL architecture seamlessly locking active dispatch requests to physical blood inventory, removing race conditions across hospital branches." 
+               bgClasses="bg-gradient-to-tl from-card to-card/50"
              />
-             <FeatureCard 
-               icon={<Stethoscope className="w-8 h-8 text-blue-500" />} 
-               title="Custom Telemetry Forms" 
-               desc="Skip document uploads entirely. Clinical staff can force raw numbers immediately into the Fast-API engine for an isolated emergency evaluation." 
-             />
-             <FeatureCard 
-               icon={<Users className="w-8 h-8 text-purple-500" />} 
-               title="Urgency Routing Analytics" 
-               desc="Outputs trigger distinct priority bounds (RED, YELLOW, GREEN) assigning critical trauma directly to 0-hour dispatch logic queues." 
-             />
-             <FeatureCard 
-               icon={<HeartPulse className="w-8 h-8 text-rose-500" />} 
-               title="Live Dashboarding" 
-               desc="Visually tracks extracted medical variables on responsive Recharts Cartesian arrays, isolating pathology limits instantly for nursing teams." 
-             />
+
           </div>
         </div>
       </section>
@@ -172,12 +177,29 @@ export default function HomeLandingPage() {
   );
 }
 
-function FeatureCard({ icon, title, desc }: any) {
+interface BentoCardProps {
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+  href: string;
+  colSpan: string;
+  bgClasses: string;
+}
+
+// Sleek Bento Box Component
+function BentoCard({ icon, title, desc, href, colSpan, bgClasses }: BentoCardProps) {
   return (
-    <div className="p-10 rounded-[2.5rem] bg-card border border-border shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 group">
-       <div className="w-20 h-20 rounded-[1.5rem] bg-muted group-hover:bg-background border border-transparent group-hover:border-border flex items-center justify-center mb-8 shadow-inner transition-all duration-500">{icon}</div>
-       <h3 className="text-2xl font-bold mb-4 tracking-tight">{title}</h3>
-       <p className="text-muted-foreground leading-relaxed text-lg font-medium">{desc}</p>
-    </div>
+    <Link href={href || "#"} className={`${colSpan} ${bgClasses} p-8 rounded-[2rem] border border-border/60 hover:border-border shadow-sm hover:shadow-xl dark:shadow-none hover:shadow-primary/5 transition-all duration-500 group flex flex-col justify-between overflow-hidden relative backdrop-blur-xl`}>
+       
+       <div className="absolute top-0 right-0 w-32 h-32 bg-foreground dark:bg-primary opacity-0 group-hover:opacity-[0.03] rounded-full blur-3xl transition-opacity duration-500 pointer-events-none" />
+       
+       <div className="w-14 h-14 rounded-2xl bg-muted group-hover:bg-background border border-transparent group-hover:border-border flex items-center justify-center mb-6 shadow-sm transition-all duration-500 z-10">
+          {icon}
+       </div>
+       <div className="z-10">
+          <h3 className="text-xl font-extrabold mb-2 tracking-tight text-foreground transition-colors duration-300">{title}</h3>
+          <p className="text-muted-foreground text-sm font-medium leading-relaxed transition-colors duration-300">{desc}</p>
+       </div>
+    </Link>
   )
 }

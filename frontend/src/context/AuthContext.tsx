@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
 import { ActivitySquare } from "lucide-react";
@@ -29,37 +29,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  useEffect(() => {
-    // Check localStorage payload on boot
-    const storedToken = localStorage.getItem("access_token");
-    if (storedToken) {
-      setToken(storedToken);
-      fetchUser(storedToken);
-    } else {
-      setLoading(false);
-      enforceGuards();
-    }
-  }, []);
+  const logout = useCallback(() => {
+    localStorage.removeItem("access_token");
+    setToken(null);
+    setUser(null);
+    router.push("/login");
+  }, [router]);
 
-  useEffect(() => {
-    enforceGuards();
-  }, [user, loading, pathname]);
-
-  const enforceGuards = () => {
+  const enforceGuards = useCallback(() => {
     if (loading) return;
     const isDashboard = pathname.startsWith("/dashboard");
     if (isDashboard && !user && !token) {
       router.replace("/login");
     }
-  };
+  }, [loading, pathname, user, token, router]);
 
-  const fetchUser = async (authToken: string) => {
+  const fetchUser = useCallback(async (authToken: string) => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
     try {
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), 10000);
       
-      const res = await fetch(`${apiUrl}/users/me`, {
+      const res = await fetch(`${apiUrl}/auth/users/me`, {
         headers: { Authorization: `Bearer ${authToken}` },
         signal: controller.signal
       });
@@ -70,35 +61,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const data = await res.json();
         setUser(data);
       } else {
-        // Token invalid or expired
         toast.error("Session expired, please login again");
         logout();
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Auth fetch error:", err);
-      if (err.name === 'AbortError' || err.message.includes("Failed to fetch")) {
+      if (err instanceof Error && (err.name === 'AbortError' || err.message.includes("Failed to fetch"))) {
          toast.error("Network Error: Could not connect to the authentication server.");
-         setUser(null); // Explicit fallback
+         setUser(null);
       } else {
          toast.error("Authentication Error");
       }
     } finally {
       setLoading(false);
     }
-  };
+  }, [logout]);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("access_token");
+    if (storedToken) {
+      setToken(storedToken);
+      fetchUser(storedToken);
+    } else {
+      setLoading(false);
+      enforceGuards();
+    }
+  }, [enforceGuards, fetchUser]);
+
+  useEffect(() => {
+    enforceGuards();
+  }, [enforceGuards]);
 
   const login = (newToken: string) => {
     localStorage.setItem("access_token", newToken);
     setToken(newToken);
     fetchUser(newToken);
     router.push("/dashboard");
-  };
-
-  const logout = () => {
-    localStorage.removeItem("access_token");
-    setToken(null);
-    setUser(null);
-    router.push("/login");
   };
 
   return (

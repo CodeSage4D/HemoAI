@@ -22,6 +22,7 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}, time
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
       headers,
+      credentials: "include",
       signal: controller.signal,
     });
     
@@ -33,26 +34,46 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}, time
     }
 
     return await response.json();
-  } catch (err: any) {
+  } catch (err: unknown) {
     clearTimeout(id);
-    if (err.name === 'AbortError') {
-      throw new Error("Connection Timeout: The server is taking too long to respond.");
-    }
-    if (err.message.includes("Failed to fetch")) {
-      throw new Error("Connection Error: Unable to reach the server. Please check your connection.");
+    if (err instanceof Error) {
+      if (err.name === 'AbortError') {
+        throw new Error("Connection Timeout: The server is taking too long to respond.");
+      }
+      if (err.message.includes("Failed to fetch")) {
+        throw new Error("Connection Error: Unable to reach the server. Please check your connection.");
+      }
     }
     throw err;
   }
 }
 
+export interface SignupPayload {
+  email: string;
+  password: string;
+  full_name: string;
+  role: string;
+}
+
+export interface BloodRequestPayload {
+  patientId?: string;
+  unitsRequired: number;
+  hemoglobinLevel: number;
+  diseaseType: string;
+  patientName?: string;
+  patientAge?: number;
+  gender?: string;
+  bloodGroup?: string;
+}
+
 // Named exports for clarity across UI components
 export const authApi = {
   login: async (body: URLSearchParams) => {
-    // URLSearchParams required for OAuth2PasswordRequestForm
-    const res = await fetch(`${API_BASE_URL}/token`, {
+    const res = await fetch(`${API_BASE_URL}/auth/token`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: body.toString(),
+      credentials: "include",
     });
     if (!res.ok) {
       const err = await res.json().catch(() => null);
@@ -60,12 +81,12 @@ export const authApi = {
     }
     return res.json();
   },
-  signup: (userData: any) => apiFetch("/users", { method: "POST", body: JSON.stringify(userData) }),
+  signup: (userData: SignupPayload) => apiFetch("/auth/users", { method: "POST", body: JSON.stringify(userData) }),
 };
 
 export const metricsApi = {
   getDashboardStats: () => apiFetch("/dashboard/stats"),
-  getInventory: () => apiFetch("/inventory"),
-  getRequests: () => apiFetch("/requests"),
-  submitRequest: (payload: any) => apiFetch("/requests", { method: "POST", body: JSON.stringify(payload) }),
+  getInventory: () => apiFetch("/logistics/inventory"), // Assuming placeholder or future route
+  getRequests: () => apiFetch("/logistics/requests"),
+  submitRequest: (payload: BloodRequestPayload) => apiFetch("/logistics/requests", { method: "POST", body: JSON.stringify(payload) }),
 };

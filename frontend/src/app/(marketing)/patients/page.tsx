@@ -4,6 +4,13 @@ import { motion } from "framer-motion";
 import { Heart, ShieldAlert, FileText, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
+interface StepCardProps {
+  step: string;
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+}
+
 export default function PatientsPage() {
   return (
     <div className="py-24 px-6 max-w-7xl mx-auto">
@@ -58,7 +65,14 @@ export default function PatientsPage() {
   );
 }
 
-function StepCard({ step, icon, title, desc }: any) {
+interface StepCardProps {
+  step: string;
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+}
+
+function StepCard({ step, icon, title, desc }: StepCardProps) {
   return (
     <motion.div 
       whileHover={{ y: -5 }}

@@ -3,11 +3,17 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Stethoscope, ActivitySquare, AlertTriangle, Loader2 } from "lucide-react";
-import { metricsApi } from "@/lib/api";
+import { metricsApi, BloodRequestPayload } from "@/lib/api";
+
+interface DiagnosisResult {
+  score: string;
+  classification: string;
+  recommendation: string;
+}
 
 export default function DiagnosisPage() {
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<null | any>(null);
+  const [result, setResult] = useState<DiagnosisResult | null>(null);
   const [error, setError] = useState("");
   
   const [hemo, setHemo] = useState("");
@@ -20,29 +26,34 @@ export default function DiagnosisPage() {
     setError("");
 
     try {
-      // Hit actual Fast-API backend ML node
-      const payload = {
-        blood_type: "UNKNOWN", // Defaults for simple triage query
-        disease_type: diseaseType.toUpperCase(),
-        units_required: 1,
-        hemoglobin_level: parseFloat(hemo)
+      const payload: BloodRequestPayload = {
+        patientName: "Simulated Patient",
+        patientAge: 35,
+        bloodGroup: "O-",
+        diseaseType: diseaseType.toUpperCase(),
+        unitsRequired: 1,
+        hemoglobinLevel: parseFloat(hemo)
       };
       const res = await metricsApi.submitRequest(payload);
       
       setResult({
-        score: res.priority_score.toFixed(1),
-        classification: res.urgency_channel,
-        recommendation: res.urgency_channel === "RED" 
+        score: res.priorityScore.toFixed(1),
+        classification: res.urgencyChannel,
+        recommendation: res.urgencyChannel === "RED" 
            ? "Immediate Transfusion Requested. Data logged to emergency dispatch." 
-           : res.urgency_channel === "GREEN" 
+           : res.urgencyChannel === "GREEN" 
            ? "Special Track Logged. Chronic condition prioritized." 
            : "Logged into queue. Status non-critical.",
       });
-    } catch (err: any) {
-      if (err.message?.includes("401")) {
-         setError("Authentication Required: Please login to the Portal to submit live ML queries.");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        if (err.message?.includes("401")) {
+           setError("Authentication Required: Please login to the Portal to submit live ML queries.");
+        } else {
+           setError(err.message || "Failed to route to Fast-API Prediction Engine.");
+        }
       } else {
-         setError(err.message || "Failed to route to Fast-API Prediction Engine.");
+         setError("Failed to route to Fast-API Prediction Engine.");
       }
     } finally {
       setLoading(false);
