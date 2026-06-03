@@ -71,7 +71,7 @@ export default function HomeLandingPage() {
                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
                className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs font-bold tracking-widest uppercase shadow-sm backdrop-blur-md"
             >
-               <div className="w-2 h-2 rounded-full bg-primary animate-pulse" /> Hemo-AI V5.2 Live
+               <div className="w-2 h-2 rounded-full bg-primary animate-pulse" /> RAKTAVA V5.2 Live
             </motion.div>
             
             <h1 className="text-5xl md:text-7xl lg:text-[6.5rem] font-black tracking-tighter mb-6 leading-[1.05] text-foreground transition-colors duration-300">

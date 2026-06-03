@@ -260,7 +260,7 @@ export default function AnalyzerPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
-            <FileScan className="w-6 h-6 text-primary" /> Report Analyzer
+            <FileScan className="w-6 h-6 text-primary" /> RAKTAVA Medical Intelligence Engine
           </h2>
           <p className="text-muted-foreground text-sm max-w-3xl mt-1">
             Ingest clinical blood panel PDF/Images. The system extracts parameters, performs rule validation, and assigns priority triages.

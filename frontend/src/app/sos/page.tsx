@@ -36,8 +36,8 @@ export default function PublicSOSPage() {
 
       {/* Top Nav */}
       <header className="relative z-10 flex items-center justify-between px-6 lg:px-12 py-4 border-b border-border bg-background/50 backdrop-blur-md">
-        <Link href="/" className="font-bold text-xl flex items-center gap-2">
-          <ActivitySquareIcon className="w-6 h-6 text-primary" /> Hemo-Sync
+        <Link href="/" className="flex items-center gap-2">
+          <img src="/RAKTAVA-Logo-Witout-Background.png" alt="RAKTAVA" className="h-9 w-auto object-contain dark:brightness-110" />
         </Link>
         <Link href="/login" className="text-sm font-bold bg-primary text-primary-foreground px-4 py-2 rounded-lg">
            Patient Login

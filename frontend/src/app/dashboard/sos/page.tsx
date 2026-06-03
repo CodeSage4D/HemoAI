@@ -81,7 +81,7 @@ export default function PatientSOSDashboard() {
             </div>
             <h2 className="text-2xl font-black text-emerald-500">Ambulance Dispatched</h2>
             <p className="font-medium max-w-md mx-auto">Unit #7082 is en route to your location (<span className="font-bold text-foreground">{location}</span>). Estimated arrival is 4 minutes.</p>
-            <p className="text-sm text-muted-foreground mt-2">Paramedics have been granted immediate access to your Hemo-Sync medical profile.</p>
+            <p className="text-sm text-muted-foreground mt-2">Paramedics have been granted immediate access to your RAKTAVA medical profile.</p>
          </div>
       )}
 

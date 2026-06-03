@@ -41,12 +41,12 @@ export default function LoginPage() {
         </Link>
         
         <div className="max-w-md w-full mx-auto">
-          <div className="flex justify-center lg:justify-start mb-8 text-primary">
-            <HeartPulse className="w-10 h-10" />
+          <div className="flex justify-center lg:justify-start mb-8">
+            <img src="/RAKTAVA-Logo-Witout-Background.png" alt="RAKTAVA" className="h-12 w-auto object-contain dark:brightness-110" />
           </div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h1 className="text-3xl font-bold mb-2">Welcome Back</h1>
-            <p className="text-muted-foreground mb-8">Sign in to your Hemo-Sync institutional portal.</p>
+            <p className="text-muted-foreground mb-8">Sign in to your RAKTAVA institutional portal.</p>
             
             <AnimatePresence>
               {error && (

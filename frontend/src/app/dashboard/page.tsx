@@ -85,7 +85,7 @@ function HospitalDashboard() {
       <div className="flex items-center justify-between">
          <div>
             <h1 className="text-3xl font-bold mb-1">Command Overview</h1>
-            <p className="text-muted-foreground text-sm">Central intelligence for regional blood bank logistics and real-time patient triage.</p>
+            <p className="text-muted-foreground text-sm">Central intelligence for regional RAKTAVA blood logistics and real-time patient triage.</p>
          </div>
          {(stats?.criticalPatientsAlert ?? 0) > 0 && (
            <div className="flex bg-destructive/10 border border-destructive/20 text-destructive text-sm font-bold px-4 py-2 rounded-lg items-center gap-2 animate-pulse">

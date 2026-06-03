@@ -7,7 +7,7 @@ import { MessageSquareText, X, Send, Bot, User } from "lucide-react";
 export function AiBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Hi! I'm the Hemo-Sync Intelligence bot. How can I assist you with patient priority scoring or inventory queries today?" }
+    { role: "assistant", content: "Hi! I'm the RAKTAVA Intelligence bot. How can I assist you with patient priority scoring or inventory queries today?" }
   ]);
   const [input, setInput] = useState("");
 
@@ -37,7 +37,7 @@ export function AiBot() {
             {/* Header */}
             <div className="bg-primary p-4 flex items-center justify-between text-primary-foreground">
               <div className="flex items-center gap-2 font-semibold">
-                <Bot className="w-5 h-5" /> Hemo-Sync Assistant
+                <Bot className="w-5 h-5" /> RAKTAVA Assistant
               </div>
               <button onClick={() => setIsOpen(false)} className="hover:bg-primary-foreground/20 p-1 rounded-md transition-colors">
                 <X className="w-5 h-5" />

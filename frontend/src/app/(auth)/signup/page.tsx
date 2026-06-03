@@ -59,12 +59,12 @@ export default function SignupPage() {
         </Link>
         
         <div className="max-w-md w-full mx-auto mt-12 mb-8">
-          <div className="flex justify-center lg:justify-start mb-8 text-primary">
-            <HeartPulse className="w-10 h-10" />
+          <div className="flex justify-center lg:justify-start mb-8">
+            <img src="/RAKTAVA-Logo-Witout-Background.png" alt="RAKTAVA" className="h-12 w-auto object-contain dark:brightness-110" />
           </div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h1 className="text-3xl font-bold mb-2">Create an Account</h1>
-            <p className="text-muted-foreground mb-8">Join the Hemo-Sync secure network.</p>
+            <p className="text-muted-foreground mb-8">Join the RAKTAVA secure network.</p>
 
             <AnimatePresence>
               {error && (
@@ -155,7 +155,7 @@ export default function SignupPage() {
              </div>
              <h3 className="font-bold text-2xl mb-4">Join 400+ Medical Institutions</h3>
              <p className="text-muted-foreground leading-relaxed mb-6">
-               Implementing Hemo-Sync guarantees a 40% reduction in logistical blood wastage and ensures optimal stock for critical intensive care admissions natively mapped to Py databases.
+               Implementing RAKTAVA guarantees a 40% reduction in logistical blood wastage and ensures optimal stock for critical intensive care admissions natively mapped to Py databases.
              </p>
              <div className="flex gap-2">
                 <div className="w-2 h-2 rounded-full bg-primary" />

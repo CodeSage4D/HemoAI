@@ -24,10 +24,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Sidebar */}
       <aside className="w-64 flex-shrink-0 bg-card border-r border-border hidden md:flex flex-col">
         <div className="h-16 flex items-center px-6 border-b border-border">
-          <div className="font-bold text-lg text-primary flex items-center gap-2">
-            <ActivitySquare className="w-5 h-5" />
-            Hemo-Sync SaaS
-          </div>
+          <img src="/RAKTAVA-Logo-Witout-Background.png" alt="RAKTAVA" className="h-9 w-auto object-contain dark:brightness-110" />
         </div>
         <div className="flex-1 overflow-y-auto py-6 px-4">
           <nav className="space-y-1">

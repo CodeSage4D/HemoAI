@@ -17,7 +17,7 @@ export default function HospitalsPage() {
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">Empower Your Hospital with AI Logistics.</h1>
           <p className="text-lg text-muted-foreground mb-8">
-            Hemo-Sync connects your internal trauma inventory with regional blood banks, ensuring you never face life-threatening stockouts during mass casualty incidents or critical surgeries.
+            RAKTAVA connects your internal trauma inventory with regional blood banks, ensuring you never face life-threatening stockouts during mass casualty incidents or critical surgeries.
           </p>
           
           <div className="space-y-4 mb-10">

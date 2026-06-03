@@ -19,7 +19,7 @@ export default function ContactPage() {
             </div>
             <div>
               <h3 className="font-bold text-lg mb-1">Email Us</h3>
-              <p className="text-muted-foreground">hello@hemo-sync.ai</p>
+              <p className="text-muted-foreground">hello@raktava.ai</p>
             </div>
           </div>
           <div className="flex gap-4">
@@ -28,7 +28,7 @@ export default function ContactPage() {
             </div>
             <div>
               <h3 className="font-bold text-lg mb-1">Call Support</h3>
-              <p className="text-muted-foreground">1-800-HEMOSYNC</p>
+              <p className="text-muted-foreground">1-800-RAKTAVA</p>
             </div>
           </div>
           <div className="flex gap-4">

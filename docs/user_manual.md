@@ -1,4 +1,4 @@
-# Hemo-Sync SaaS - System User Guide & Operations Manual
+# RAKTAVA - System User Guide & Operations Manual
 **Version:** 1.0.0  
 **Target Audience:** Clinical Users, Administrators, and Systems Engineers  
 
@@ -6,7 +6,7 @@
 
 ## 1. Introduction
 
-**Hemo-Sync** is an enterprise-grade healthcare SaaS platform designed for regional blood bank logistics coordination, real-time clinical patient risk triage, and automated supply routing.
+**RAKTAVA** is an enterprise-grade healthcare SaaS platform designed for regional blood bank logistics coordination, real-time clinical patient risk triage, and automated supply routing.
 
 The system utilizes an offline local **Python AI Daemon** (zero-shot transformers + XGBoost regressions) combined with a **Clinical Rule Engine** to compute priority scores and route emergency demands to matching regional blood repositories using a FIFO + Haversine distance algorithm.
 
@@ -17,7 +17,7 @@ The system utilizes an offline local **Python AI Daemon** (zero-shot transformer
 The project codebase is organized into clean, modular, and logically separated subdirectories:
 
 ```text
-blood-bank-intelligence/
+raktava/
 ├── backend/
 │   ├── prisma/
 │   │   ├── schema.prisma      # PostgreSQL Models & Enums

@@ -28,9 +28,8 @@ export function Navbar() {
     <nav className={`fixed w-full z-50 top-0 transition-all duration-300 ${scrolled ? "bg-background/80 backdrop-blur-md border-b border-border/50 py-3" : "bg-transparent py-5"}`}>
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-primary">
-          <HeartPulse className="w-6 h-6" />
-          Hemo-Sync
+        <Link href="/" className="flex items-center gap-2">
+          <img src="/RAKTAVA-Logo-Witout-Background.png" alt="RAKTAVA" className="h-10 w-auto object-contain dark:brightness-110" />
         </Link>
         
         {/* Desktop Links */}
@@ -75,8 +74,8 @@ export function Navbar() {
             className="absolute top-0 left-0 w-full bg-background border-b border-border shadow-xl md:hidden flex flex-col p-6 h-screen"
           >
             <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-2 font-bold text-xl text-primary">
-                <HeartPulse className="w-6 h-6" /> Hemo-Sync
+              <div className="flex items-center gap-2">
+                <img src="/RAKTAVA-Logo-Witout-Background.png" alt="RAKTAVA" className="h-8 w-auto object-contain dark:brightness-110" />
               </div>
               <button className="p-2 text-foreground" onClick={() => setMobileMenuOpen(false)}>
                 <X className="w-6 h-6" />

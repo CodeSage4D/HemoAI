@@ -84,7 +84,7 @@ export default function DrivesPage() {
                <Megaphone className="w-5 h-5"/> Smart AI Dispatch
             </h3>
             <p className="text-sm text-muted-foreground mb-6">
-               Hemo-Sync continuously scans local telemetry to identify users who are legally eligible to donate (56+ days post-donation).
+               RAKTAVA continuously scans local telemetry to identify users who are legally eligible to donate (56+ days post-donation).
             </p>
 
             <div className="bg-card border border-border rounded-xl p-4 shadow-sm mb-4">

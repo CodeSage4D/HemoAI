@@ -8,9 +8,8 @@ export function Footer() {
     <footer className="bg-muted/30 border-t border-border pt-16 pb-8 px-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
         <div className="md:col-span-1">
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-primary mb-4">
-            <HeartPulse className="w-6 h-6" />
-            Hemo-Sync
+          <Link href="/" className="flex items-center gap-2 mb-4">
+            <img src="/RAKTAVA-Logo-Witout-Background.png" alt="RAKTAVA" className="h-9 w-auto object-contain dark:brightness-110" />
           </Link>
           <p className="text-muted-foreground text-sm leading-relaxed mb-6">
             Intelligent Blood Management system leveraging predictive AI to save lives, prevent shortages, and streamline medical logistics.
@@ -52,7 +51,7 @@ export function Footer() {
         </div>
       </div>
       <div className="max-w-7xl mx-auto border-t border-border/50 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-        <p>© 2026 Hemo-Sync Intelligence Systems. All rights reserved.</p>
+        <p>© 2026 RAKTAVA. All rights reserved.</p>
         <div className="flex gap-4">
           <span className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-emerald-500" /> All systems operational</span>
         </div>

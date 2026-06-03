@@ -7,7 +7,7 @@
 
 ## 1. Executive Summary
 
-This security audit performs a technical verification of the **Blood Bank Intelligence & Patient Support System (Hemo-Sync)** against industry-standard security models: **IEEE 29147 (Vulnerability Disclosure)**, **IEEE 830 / ISO 29148 (System Requirements)**, **OWASP Top 10 (2021)**, and **HIPAA Administrative Simplification Technical Safeguards (45 CFR §164.300 - §164.312)**.
+This security audit performs a technical verification of the **RAKTAVA AI-Powered Blood Intelligence Platform** against industry-standard security models: **IEEE 29147 (Vulnerability Disclosure)**, **IEEE 830 / ISO 29148 (System Requirements)**, **OWASP Top 10 (2021)**, and **HIPAA Administrative Simplification Technical Safeguards (45 CFR §164.300 - §164.312)**.
 
 ### **OVERALL AUDIT STATUS: PASS** 🟢
 

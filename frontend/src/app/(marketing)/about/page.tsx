@@ -13,7 +13,7 @@ export default function AboutPage() {
       >
         <h1 className="text-4xl md:text-5xl font-bold mb-6">Redefining Blood Management for the Modern Era.</h1>
         <p className="text-lg text-muted-foreground">
-          At Hemo-Sync, our mission is to eliminate blood shortages by predicting local demand and matching critical supply to priority patients with precision AI intelligence.
+          At RAKTAVA, our mission is to eliminate blood shortages by predicting local demand and matching critical supply to priority patients with precision AI intelligence.
         </p>
       </motion.div>
 
@@ -32,7 +32,7 @@ export default function AboutPage() {
         <div className="p-16 text-center">
             <h2 className="text-3xl font-bold mb-4">Our Vision for 2030</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto italic">
-              &quot;We envision a decade where no patient is ever turned away due to a logistical shortage of blood products. Hemo-Sync will bridge the gap between availability and instantaneous hospital delivery across the entire continent.&quot;
+              &quot;We envision a decade where no patient is ever turned away due to a logistical shortage of blood products. RAKTAVA will bridge the gap between availability and instantaneous hospital delivery across the entire continent.&quot;
             </p>
         </div>
       </motion.div>
