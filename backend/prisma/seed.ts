@@ -27,6 +27,7 @@ async function main() {
 
   const adminHash = await bcrypt.hash('SecurePassword123!', 10);
   const hospitalHash = await bcrypt.hash('HospitalAccess123!', 10);
+  const bankHash = await bcrypt.hash('BankAccess123!', 10);
   const patientHash = await bcrypt.hash('PatientPassword123!', 10);
 
   const adminUser = await prisma.user.create({
@@ -47,10 +48,37 @@ async function main() {
     },
   });
 
+  const stJudeUser = await prisma.user.create({
+    data: {
+      email: 'stjude@hemoi.com',
+      fullName: 'St. Jude General Admin',
+      role: Role.HOSPITAL,
+      passwordHash: hospitalHash,
+    },
+  });
+
+  const bankUser = await prisma.user.create({
+    data: {
+      email: 'bank@hemoi.com',
+      fullName: 'Regional Bank Manager',
+      role: Role.BLOOD_BANK,
+      passwordHash: bankHash,
+    },
+  });
+
   const patientUser = await prisma.user.create({
     data: {
       email: 'john.doe@mail.com',
       fullName: 'John Doe',
+      role: Role.PATIENT,
+      passwordHash: patientHash,
+    },
+  });
+
+  const janeUser = await prisma.user.create({
+    data: {
+      email: 'jane.smith@mail.com',
+      fullName: 'Jane Smith',
       role: Role.PATIENT,
       passwordHash: patientHash,
     },
@@ -68,7 +96,17 @@ async function main() {
     },
   });
 
-  console.log('Seeded Hospital.');
+  const stJudeHospital = await prisma.hospital.create({
+    data: {
+      userId: stJudeUser.id,
+      name: 'St. Jude Medical Center',
+      licenseNo: 'SJMC-777-ABC',
+      locationLat: 37.4419,
+      locationLng: -122.1430,
+    },
+  });
+
+  console.log('Seeded Hospitals.');
 
   const patient = await prisma.patient.create({
     data: {
@@ -81,11 +119,22 @@ async function main() {
     },
   });
 
-  console.log('Seeded Patient.');
+  const janePatient = await prisma.patient.create({
+    data: {
+      hospitalId: stJudeHospital.id,
+      name: encryptField('Jane Smith'),
+      age: 28,
+      gender: 'Female',
+      bloodGroup: BloodGroup.A_POS,
+      chronicConditions: encryptField('Anemia'),
+    },
+  });
+
+  console.log('Seeded Patients.');
 
   const regionalBank = await prisma.bloodBank.create({
     data: {
-      userId: adminUser.id,
+      userId: bankUser.id,
       name: 'Regional Distro Hub',
       locationLat: 37.3600,
       locationLng: -121.9400,

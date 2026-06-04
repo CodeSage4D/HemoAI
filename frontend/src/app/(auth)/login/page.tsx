@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Shield, Activity, Building2, Database, User, Sparkles } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { authApi } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
@@ -22,6 +22,25 @@ export default function LoginPage() {
 
     try {
       const data = await authApi.login(email, password);
+      login(data.token);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+         setError(err.message || "Failed to login. Check credentials.");
+      } else {
+         setError("Failed to login. Check credentials.");
+      }
+      setLoading(false);
+    }
+  };
+
+  const handleDirectLogin = async (demoEmail: string, demoPassword: string) => {
+    setError("");
+    setLoading(true);
+    setEmail(demoEmail);
+    setPassword(demoPassword);
+
+    try {
+      const data = await authApi.login(demoEmail, demoPassword);
       login(data.token);
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -75,59 +94,92 @@ export default function LoginPage() {
               </button>
             </form>
 
-            {/* Quick Demo Credentials Panel */}
-            <div className="mt-8 border border-border/50 rounded-2xl p-4 bg-muted/40">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-3">
-                Quick Demo Credentials (Click to pre-fill)
-              </span>
-              <div className="grid grid-cols-1 gap-2">
+            {/* EXPLORE RAKTAVA DEMO SYSTEM */}
+            <div className="mt-8 border border-border/80 rounded-2xl p-6 bg-card shadow-sm">
+              <div className="flex items-center gap-2 mb-2 text-primary">
+                <Sparkles className="w-5 h-5" />
+                <span className="text-sm font-bold uppercase tracking-wider">
+                  EXPLORE RAKTAVA DEMO SYSTEM
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mb-6 leading-relaxed">
+                Bypass standard login credential pools. Click a role profile below to explore simplified dashboards, real-time AI prioritizations, regional inventory tracking, and emergency logistics routes.
+              </p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Profile 1 */}
                 <button
                   type="button"
-                  onClick={() => {
-                    setEmail("admin@hemoi.com");
-                    setPassword("SecurePassword123!");
-                  }}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between text-left p-3 rounded-xl border border-border bg-card hover:bg-muted/50 hover:border-primary/30 transition-all group cursor-pointer"
+                  onClick={() => handleDirectLogin("admin@hemoi.com", "SecurePassword123!")}
+                  className="flex items-center gap-3 text-left p-3 rounded-xl border border-border bg-muted/30 hover:bg-primary/5 hover:border-primary/40 transition-all group cursor-pointer"
                 >
-                  <div>
-                    <span className="text-xs font-bold text-primary block">Super Admin (Blood Bank Hub)</span>
-                    <span className="text-xs text-muted-foreground font-mono">admin@hemoi.com</span>
+                  <div className="p-2.5 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                    <Shield className="w-4 h-4" />
                   </div>
-                  <span className="text-[10px] text-muted-foreground group-hover:text-primary font-mono transition-colors mt-1 sm:mt-0">
-                    SecurePassword123!
-                  </span>
+                  <div>
+                    <span className="text-xs font-bold text-foreground block group-hover:text-primary transition-colors">HQ Admin Cockpit</span>
+                    <span className="text-[10px] text-muted-foreground block leading-tight">System metrics & logs</span>
+                  </div>
                 </button>
+
+                {/* Profile 2 */}
                 <button
                   type="button"
-                  onClick={() => {
-                    setEmail("dispatch@svtc.org");
-                    setPassword("HospitalAccess123!");
-                  }}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between text-left p-3 rounded-xl border border-border bg-card hover:bg-muted/50 hover:border-emerald-500/30 transition-all group cursor-pointer"
+                  onClick={() => handleDirectLogin("dispatch@svtc.org", "HospitalAccess123!")}
+                  className="flex items-center gap-3 text-left p-3 rounded-xl border border-border bg-muted/30 hover:bg-emerald-500/5 hover:border-emerald-500/40 transition-all group cursor-pointer"
                 >
-                  <div>
-                    <span className="text-xs font-bold text-emerald-500 block">Valley Trauma Center (Hospital)</span>
-                    <span className="text-xs text-muted-foreground font-mono">dispatch@svtc.org</span>
+                  <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                    <Activity className="w-4 h-4" />
                   </div>
-                  <span className="text-[10px] text-muted-foreground group-hover:text-emerald-500 font-mono transition-colors mt-1 sm:mt-0">
-                    HospitalAccess123!
-                  </span>
+                  <div>
+                    <span className="text-xs font-bold text-foreground block group-hover:text-emerald-500 transition-colors">Trauma Center Desk</span>
+                    <span className="text-[10px] text-muted-foreground block leading-tight">Requisitions & dispatches</span>
+                  </div>
                 </button>
+
+                {/* Profile 3 */}
                 <button
                   type="button"
-                  onClick={() => {
-                    setEmail("john.doe@mail.com");
-                    setPassword("PatientPassword123!");
-                  }}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between text-left p-3 rounded-xl border border-border bg-card hover:bg-muted/50 hover:border-amber-500/30 transition-all group cursor-pointer"
+                  onClick={() => handleDirectLogin("stjude@hemoi.com", "HospitalAccess123!")}
+                  className="flex items-center gap-3 text-left p-3 rounded-xl border border-border bg-muted/30 hover:bg-teal-500/5 hover:border-teal-500/40 transition-all group cursor-pointer"
                 >
-                  <div>
-                    <span className="text-xs font-bold text-amber-500 block">John Doe (Patient Node)</span>
-                    <span className="text-xs text-muted-foreground font-mono">john.doe@mail.com</span>
+                  <div className="p-2.5 rounded-lg bg-teal-500/10 text-teal-500 group-hover:bg-teal-500 group-hover:text-white transition-all">
+                    <Building2 className="w-4 h-4" />
                   </div>
-                  <span className="text-[10px] text-muted-foreground group-hover:text-amber-500 font-mono transition-colors mt-1 sm:mt-0">
-                    PatientPassword123!
-                  </span>
+                  <div>
+                    <span className="text-xs font-bold text-foreground block group-hover:text-teal-500 transition-colors">St. Jude Medical</span>
+                    <span className="text-[10px] text-muted-foreground block leading-tight">Secondary clinic node</span>
+                  </div>
+                </button>
+
+                {/* Profile 4 */}
+                <button
+                  type="button"
+                  onClick={() => handleDirectLogin("bank@hemoi.com", "BankAccess123!")}
+                  className="flex items-center gap-3 text-left p-3 rounded-xl border border-border bg-muted/30 hover:bg-indigo-500/5 hover:border-indigo-500/40 transition-all group cursor-pointer"
+                >
+                  <div className="p-2.5 rounded-lg bg-indigo-500/10 text-indigo-500 group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                    <Database className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-foreground block group-hover:text-indigo-500 transition-colors">Distro Hub Bank</span>
+                    <span className="text-[10px] text-muted-foreground block leading-tight">Inventory & supply logs</span>
+                  </div>
+                </button>
+
+                {/* Profile 5 */}
+                <button
+                  type="button"
+                  onClick={() => handleDirectLogin("john.doe@mail.com", "PatientPassword123!")}
+                  className="flex items-center gap-3 text-left p-3 rounded-xl border border-border bg-muted/30 hover:bg-amber-500/5 hover:border-amber-500/40 transition-all group cursor-pointer sm:col-span-2"
+                >
+                  <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-all">
+                    <User className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-foreground block group-hover:text-amber-500 transition-colors">Patient Portal Desk</span>
+                    <span className="text-[10px] text-muted-foreground block leading-tight">Clinical report uploads & self checks (John Doe / Jane Smith)</span>
+                  </div>
                 </button>
               </div>
             </div>
