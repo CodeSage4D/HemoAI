@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE_URL = "/api";
 
 // Helper to get token
 const getAuthHeaders = (): Record<string, string> => {
@@ -30,7 +30,22 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}, time
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
-      throw new Error(errorData?.message || errorData?.detail || `API Error: ${response.status}`);
+      const serverMessage = errorData?.message || errorData?.detail || "";
+
+      switch (response.status) {
+        case 401:
+          throw new Error(serverMessage || "Invalid Credentials");
+        case 403:
+          throw new Error("Forbidden Access");
+        case 404:
+          throw new Error("API Not Found");
+        case 500:
+          throw new Error("Internal Server Error");
+        case 503:
+          throw new Error("Service Unavailable");
+        default:
+          throw new Error(serverMessage || `API Error: ${response.status}`);
+      }
     }
 
     const json = await response.json();
@@ -42,10 +57,10 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}, time
     clearTimeout(id);
     if (err instanceof Error) {
       if (err.name === 'AbortError') {
-        throw new Error("Connection Timeout: The server is taking too long to respond.");
+        throw new Error("Request Timeout");
       }
-      if (err.message.includes("Failed to fetch")) {
-        throw new Error("Connection Error: Unable to reach the server. Please check your connection.");
+      if (err.message.includes("Failed to fetch") || err.message.includes("fetch failed")) {
+        throw new Error("Backend Offline");
       }
     }
     throw err;

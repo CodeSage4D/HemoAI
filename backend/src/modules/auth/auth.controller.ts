@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { setTokenCookies, clearTokenCookies } from '../../utils/jwt';
 import { sendSuccess } from '../../utils/response';
 import { AuthenticatedRequest } from '../../middlewares/auth.middleware';
+import { logger } from '../../config/logger';
 
 const authService = new AuthService();
 
@@ -10,9 +11,12 @@ export class AuthController {
   async register(req: Request, res: Response, next: NextFunction) {
     try {
       const { email, password, fullName, role } = req.body;
+      logger.info(`[AuthFlow] Register initiated for: ${email}`);
       const user = await authService.register(email, password, fullName, role);
+      logger.info(`[AuthFlow] Register succeeded for: ${email}`);
       return sendSuccess(res, user, 'Registration successful', 201);
-    } catch (error) {
+    } catch (error: any) {
+      logger.error(`[AuthFlow] Register failed for: ${req.body?.email || 'unknown'}. Error: ${error?.message || error}`);
       next(error);
     }
   }
@@ -20,12 +24,16 @@ export class AuthController {
   async login(req: Request, res: Response, next: NextFunction) {
     try {
       const { email, password } = req.body;
+      logger.info(`[AuthFlow] Login initiated for: ${email}`);
       const result = await authService.login(email, password);
       
+      logger.info(`[AuthFlow] Credentials verified, setting secure cookies for: ${email}`);
       setTokenCookies(res, result.accessToken, result.refreshToken);
       
+      logger.info(`[AuthFlow] Login successful for: ${email}`);
       return sendSuccess(res, { user: result.user, token: result.accessToken }, 'Login successful');
-    } catch (error) {
+    } catch (error: any) {
+      logger.error(`[AuthFlow] Login failed for: ${req.body?.email || 'unknown'}. Error: ${error?.message || error}`);
       next(error);
     }
   }

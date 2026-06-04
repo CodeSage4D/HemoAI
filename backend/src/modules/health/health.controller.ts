@@ -9,13 +9,15 @@ export class HealthController {
   async health(req: Request, res: Response, next: NextFunction) {
     try {
       await prisma.$executeRawUnsafe('SELECT 1');
-      return sendSuccess(res, {
-        status: 'UP',
-        database: 'CONNECTED',
-        timestamp: new Date(),
-      }, 'System is healthy');
+      return res.status(200).json({
+        status: 'ok'
+      });
     } catch (err: any) {
-      return sendError(res, 'Database connection failed', 503, err.message);
+      return res.status(503).json({
+        status: 'error',
+        message: 'Database connection failed',
+        detail: err.message
+      });
     }
   }
 
