@@ -49,33 +49,33 @@ enum ReportStatus {
 }
 
 model User {
-  id           String      @id @default(uuid())
-  email        String      @unique
-  passwordHash String
-  fullName     String
-  role         Role        @default(PATIENT)
-  isActive     Boolean     @default(true)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  hospital     Hospital?
-  bloodBank    BloodBank?
-  donor        Donor?
+  id            String         @id @default(uuid())
+  email         String         @unique
+  passwordHash  String
+  fullName      String
+  role          Role           @default(PATIENT)
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  hospital      Hospital?
+  bloodBank     BloodBank?
+  donor         Donor?
   notifications Notification[]
-  auditLogs    AuditLog[]
+  auditLogs     AuditLog[]
 
   @@map("users")
 }
 
 model Hospital {
-  id          String      @id @default(uuid())
-  userId      String      @unique
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String    @id @default(uuid())
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   name        String
-  licenseNo   String      @unique
+  licenseNo   String    @unique
   locationLat Float
   locationLng Float
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   patients    Patient[]
 
   @@map("hospitals")
@@ -96,15 +96,15 @@ model BloodBank {
 }
 
 model Donor {
-  id               String      @id @default(uuid())
-  userId           String      @unique
-  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id               String     @id @default(uuid())
+  userId           String     @unique
+  user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   bloodGroup       BloodGroup
   lastDonationDate DateTime?
   locationLat      Float
   locationLng      Float
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
 
   @@map("donors")
 }
@@ -129,16 +129,16 @@ model Patient {
 }
 
 model MedicalReport {
-  id                 String               @id @default(uuid())
-  patientId          String
-  patient            Patient              @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  recordDate         DateTime             @default(now())
-  rawText            String?              @db.Text
-  status             ReportStatus         @default(PROCESSING)
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
+  id                  String               @id @default(uuid())
+  patientId           String
+  patient             Patient              @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  recordDate          DateTime             @default(now())
+  rawText             String?              @db.Text
+  status              ReportStatus         @default(PROCESSING)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
   extractedParameters ExtractedParameter[]
-  aiResults          AIResult[]
+  aiResults           AIResult[]
 
   @@index([patientId])
   @@map("medical_reports")
