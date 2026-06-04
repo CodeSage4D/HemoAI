@@ -75,7 +75,64 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <p className="text-center text-sm text-muted-foreground mt-8">
+            {/* Quick Demo Credentials Panel */}
+            <div className="mt-8 border border-border/50 rounded-2xl p-4 bg-muted/40">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-3">
+                Quick Demo Credentials (Click to pre-fill)
+              </span>
+              <div className="grid grid-cols-1 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail("admin@hemoi.com");
+                    setPassword("SecurePassword123!");
+                  }}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between text-left p-3 rounded-xl border border-border bg-card hover:bg-muted/50 hover:border-primary/30 transition-all group cursor-pointer"
+                >
+                  <div>
+                    <span className="text-xs font-bold text-primary block">Super Admin (Blood Bank Hub)</span>
+                    <span className="text-xs text-muted-foreground font-mono">admin@hemoi.com</span>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground group-hover:text-primary font-mono transition-colors mt-1 sm:mt-0">
+                    SecurePassword123!
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail("dispatch@svtc.org");
+                    setPassword("HospitalAccess123!");
+                  }}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between text-left p-3 rounded-xl border border-border bg-card hover:bg-muted/50 hover:border-emerald-500/30 transition-all group cursor-pointer"
+                >
+                  <div>
+                    <span className="text-xs font-bold text-emerald-500 block">Valley Trauma Center (Hospital)</span>
+                    <span className="text-xs text-muted-foreground font-mono">dispatch@svtc.org</span>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground group-hover:text-emerald-500 font-mono transition-colors mt-1 sm:mt-0">
+                    HospitalAccess123!
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail("john.doe@mail.com");
+                    setPassword("PatientPassword123!");
+                  }}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between text-left p-3 rounded-xl border border-border bg-card hover:bg-muted/50 hover:border-amber-500/30 transition-all group cursor-pointer"
+                >
+                  <div>
+                    <span className="text-xs font-bold text-amber-500 block">John Doe (Patient Node)</span>
+                    <span className="text-xs text-muted-foreground font-mono">john.doe@mail.com</span>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground group-hover:text-amber-500 font-mono transition-colors mt-1 sm:mt-0">
+                    PatientPassword123!
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <p className="text-center text-sm text-muted-foreground mt-6">
               Don&apos;t have an account? <Link href="/signup" className="text-primary font-medium hover:underline">Request Access</Link>
             </p>
           </motion.div>
