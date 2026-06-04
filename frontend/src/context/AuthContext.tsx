@@ -92,9 +92,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       fetchUser(storedToken);
     } else {
       setLoading(false);
-      enforceGuards();
     }
-  }, [enforceGuards, fetchUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     enforceGuards();
