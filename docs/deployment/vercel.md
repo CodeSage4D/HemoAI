@@ -19,7 +19,7 @@ To ensure the frontend successfully communicates with the production Node.js bac
 
 | Variable Name | Value Description | Example Value |
 | :--- | :--- | :--- |
-| `NEXT_PUBLIC_API_URL` | The public base URL of the production API gateway. | `https://api.hemoi.com` |
+| `NEXT_PUBLIC_API_URL` | The public base URL of the production API gateway. | `https://api.raktava.in` |
 
 ## Same-Origin Rewrites (Critical for HttpOnly Cookies)
 
