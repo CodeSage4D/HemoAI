@@ -110,7 +110,7 @@ export default function LoginPage() {
                 {/* Profile 1 */}
                 <button
                   type="button"
-                  onClick={() => handleDirectLogin("admin@hemoi.com", "SecurePassword123!")}
+                  onClick={() => handleDirectLogin("admin@raktava.in", "SecurePassword123!")}
                   className="flex items-center gap-3 text-left p-3 rounded-xl border border-border bg-muted/30 hover:bg-primary/5 hover:border-primary/40 transition-all group cursor-pointer"
                 >
                   <div className="p-2.5 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all">
@@ -118,59 +118,59 @@ export default function LoginPage() {
                   </div>
                   <div>
                     <span className="text-xs font-bold text-foreground block group-hover:text-primary transition-colors">HQ Admin Cockpit</span>
-                    <span className="text-[10px] text-muted-foreground block leading-tight">System metrics & logs</span>
+                    <span className="text-[10px] text-muted-foreground block leading-tight">Aarav Sharma (System logs)</span>
                   </div>
                 </button>
 
                 {/* Profile 2 */}
                 <button
                   type="button"
-                  onClick={() => handleDirectLogin("dispatch@svtc.org", "HospitalAccess123!")}
+                  onClick={() => handleDirectLogin("dispatch@apollo.in", "HospitalAccess123!")}
                   className="flex items-center gap-3 text-left p-3 rounded-xl border border-border bg-muted/30 hover:bg-emerald-500/5 hover:border-emerald-500/40 transition-all group cursor-pointer"
                 >
                   <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white transition-all">
                     <Activity className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-xs font-bold text-foreground block group-hover:text-emerald-500 transition-colors">Trauma Center Desk</span>
-                    <span className="text-[10px] text-muted-foreground block leading-tight">Requisitions & dispatches</span>
+                    <span className="text-xs font-bold text-foreground block group-hover:text-emerald-500 transition-colors">Apollo Hospital</span>
+                    <span className="text-[10px] text-muted-foreground block leading-tight">Dr. Aditya Patel (Mumbai)</span>
                   </div>
                 </button>
 
                 {/* Profile 3 */}
                 <button
                   type="button"
-                  onClick={() => handleDirectLogin("stjude@hemoi.com", "HospitalAccess123!")}
+                  onClick={() => handleDirectLogin("aiims@raktava.in", "HospitalAccess123!")}
                   className="flex items-center gap-3 text-left p-3 rounded-xl border border-border bg-muted/30 hover:bg-teal-500/5 hover:border-teal-500/40 transition-all group cursor-pointer"
                 >
                   <div className="p-2.5 rounded-lg bg-teal-500/10 text-teal-500 group-hover:bg-teal-500 group-hover:text-white transition-all">
                     <Building2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-xs font-bold text-foreground block group-hover:text-teal-500 transition-colors">St. Jude Medical</span>
-                    <span className="text-[10px] text-muted-foreground block leading-tight">Secondary clinic node</span>
+                    <span className="text-xs font-bold text-foreground block group-hover:text-teal-500 transition-colors">AIIMS Emergency</span>
+                    <span className="text-[10px] text-muted-foreground block leading-tight">Dr. Priya Nair (Delhi)</span>
                   </div>
                 </button>
 
                 {/* Profile 4 */}
                 <button
                   type="button"
-                  onClick={() => handleDirectLogin("bank@hemoi.com", "BankAccess123!")}
+                  onClick={() => handleDirectLogin("bank@raktava.in", "BankAccess123!")}
                   className="flex items-center gap-3 text-left p-3 rounded-xl border border-border bg-muted/30 hover:bg-indigo-500/5 hover:border-indigo-500/40 transition-all group cursor-pointer"
                 >
                   <div className="p-2.5 rounded-lg bg-indigo-500/10 text-indigo-500 group-hover:bg-indigo-500 group-hover:text-white transition-all">
                     <Database className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-xs font-bold text-foreground block group-hover:text-indigo-500 transition-colors">Distro Hub Bank</span>
-                    <span className="text-[10px] text-muted-foreground block leading-tight">Inventory & supply logs</span>
+                    <span className="text-xs font-bold text-foreground block group-hover:text-indigo-500 transition-colors">Red Cross India</span>
+                    <span className="text-[10px] text-muted-foreground block leading-tight">Rajesh Kumar (Bengaluru)</span>
                   </div>
                 </button>
 
                 {/* Profile 5 */}
                 <button
                   type="button"
-                  onClick={() => handleDirectLogin("john.doe@mail.com", "PatientPassword123!")}
+                  onClick={() => handleDirectLogin("amit.verma@mail.in", "PatientPassword123!")}
                   className="flex items-center gap-3 text-left p-3 rounded-xl border border-border bg-muted/30 hover:bg-amber-500/5 hover:border-amber-500/40 transition-all group cursor-pointer sm:col-span-2"
                 >
                   <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-all">
@@ -178,7 +178,7 @@ export default function LoginPage() {
                   </div>
                   <div>
                     <span className="text-xs font-bold text-foreground block group-hover:text-amber-500 transition-colors">Patient Portal Desk</span>
-                    <span className="text-[10px] text-muted-foreground block leading-tight">Clinical report uploads & self checks (John Doe / Jane Smith)</span>
+                    <span className="text-[10px] text-muted-foreground block leading-tight">Amit Verma / Deepika Sen (Reports & Self checks)</span>
                   </div>
                 </button>
               </div>

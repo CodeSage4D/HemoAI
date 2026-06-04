@@ -32,8 +32,8 @@ async function main() {
 
   const adminUser = await prisma.user.create({
     data: {
-      email: 'admin@hemoi.com',
-      fullName: 'Super Admin',
+      email: 'admin@raktava.in',
+      fullName: 'Aarav Sharma',
       role: Role.ADMIN,
       passwordHash: adminHash,
     },
@@ -41,8 +41,8 @@ async function main() {
 
   const hospitalUser = await prisma.user.create({
     data: {
-      email: 'dispatch@svtc.org',
-      fullName: 'Valley Trauma User',
+      email: 'dispatch@apollo.in',
+      fullName: 'Dr. Aditya Patel',
       role: Role.HOSPITAL,
       passwordHash: hospitalHash,
     },
@@ -50,8 +50,8 @@ async function main() {
 
   const stJudeUser = await prisma.user.create({
     data: {
-      email: 'stjude@hemoi.com',
-      fullName: 'St. Jude General Admin',
+      email: 'aiims@raktava.in',
+      fullName: 'Dr. Priya Nair',
       role: Role.HOSPITAL,
       passwordHash: hospitalHash,
     },
@@ -59,8 +59,8 @@ async function main() {
 
   const bankUser = await prisma.user.create({
     data: {
-      email: 'bank@hemoi.com',
-      fullName: 'Regional Bank Manager',
+      email: 'bank@raktava.in',
+      fullName: 'Rajesh Kumar',
       role: Role.BLOOD_BANK,
       passwordHash: bankHash,
     },
@@ -68,8 +68,8 @@ async function main() {
 
   const patientUser = await prisma.user.create({
     data: {
-      email: 'john.doe@mail.com',
-      fullName: 'John Doe',
+      email: 'amit.verma@mail.in',
+      fullName: 'Amit Verma',
       role: Role.PATIENT,
       passwordHash: patientHash,
     },
@@ -77,8 +77,8 @@ async function main() {
 
   const janeUser = await prisma.user.create({
     data: {
-      email: 'jane.smith@mail.com',
-      fullName: 'Jane Smith',
+      email: 'deepika.sen@mail.in',
+      fullName: 'Deepika Sen',
       role: Role.PATIENT,
       passwordHash: patientHash,
     },
@@ -89,20 +89,20 @@ async function main() {
   const hospital = await prisma.hospital.create({
     data: {
       userId: hospitalUser.id,
-      name: 'Silicon Valley Trauma Center',
-      licenseNo: 'SVTC-999-XYZ',
-      locationLat: 37.3382,
-      locationLng: -121.8863,
+      name: 'Apollo Emergency Hospital, Mumbai',
+      licenseNo: 'APOLLO-MUM-400001',
+      locationLat: 19.0760,
+      locationLng: 72.8777,
     },
   });
 
   const stJudeHospital = await prisma.hospital.create({
     data: {
       userId: stJudeUser.id,
-      name: 'St. Jude Medical Center',
-      licenseNo: 'SJMC-777-ABC',
-      locationLat: 37.4419,
-      locationLng: -122.1430,
+      name: 'AIIMS Emergency Trauma, Delhi',
+      licenseNo: 'AIIMS-DEL-110001',
+      locationLat: 28.6139,
+      locationLng: 77.2090,
     },
   });
 
@@ -111,7 +111,7 @@ async function main() {
   const patient = await prisma.patient.create({
     data: {
       hospitalId: hospital.id,
-      name: encryptField('John Doe'),
+      name: encryptField('Amit Verma'),
       age: 45,
       gender: 'Male',
       bloodGroup: BloodGroup.O_NEG,
@@ -122,7 +122,7 @@ async function main() {
   const janePatient = await prisma.patient.create({
     data: {
       hospitalId: stJudeHospital.id,
-      name: encryptField('Jane Smith'),
+      name: encryptField('Deepika Sen'),
       age: 28,
       gender: 'Female',
       bloodGroup: BloodGroup.A_POS,
@@ -135,9 +135,9 @@ async function main() {
   const regionalBank = await prisma.bloodBank.create({
     data: {
       userId: bankUser.id,
-      name: 'Regional Distro Hub',
-      locationLat: 37.3600,
-      locationLng: -121.9400,
+      name: 'Red Cross Distro Hub, Bengaluru',
+      locationLat: 12.9716,
+      locationLng: 77.5946,
     },
   });
 
