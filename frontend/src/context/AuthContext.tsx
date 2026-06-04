@@ -45,14 +45,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [loading, pathname, user, token, router]);
 
   const fetchUser = useCallback(async (authToken: string) => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    // Always use the /api proxy path so Next.js rewrites route to the backend
+    const apiBase = "/api";
     try {
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), 10000);
       
-      const res = await fetch(`${apiUrl}/auth/users/me`, {
+      const res = await fetch(`${apiBase}/auth/users/me`, {
         headers: { Authorization: `Bearer ${authToken}` },
-        signal: controller.signal
+        credentials: "include",
+        signal: controller.signal,
       });
       
       clearTimeout(id);
